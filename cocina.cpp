@@ -1,22 +1,29 @@
-//
+/*
+El TAD COCINA es una sucesión de muebles(elemeneto que poseen un ancho y una profundidad)
+
+*/
 #include <stdlib.h>
 #include <iostream>
 
-struct mueble
-{
-    size_t pos;
-    size_t anch;
+struct Mueble{
+    float posicion;
+    float anchura;
 };
 
 class Cocina{
     public:
-        Cocina(size_t l);
+        Cocina(size_t t);
+        ~Cocina();
     private:
-        size_t longi;
-        lista<mueble> mueble_;
+        float longitud;
+        lista<Mueble> lista;
 };
 
-Cocina::Cocina(size_t l):longi(l), mueble(lista<mueble>()){};
+Cocina::Cocina(float l)
+{
+    if (l > 0)
+        longitud = l;
+}
 
 
 
