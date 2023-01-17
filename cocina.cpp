@@ -1,31 +1,52 @@
-/*
-El TAD COCINA es una sucesión de muebles(elemeneto que poseen un ancho y una profundidad)
-
-*/
-#include <stdlib.h>
+#include <cassert>
 #include <iostream>
+#include "lista_doble.h"
+// struct Mueble{
+//     float l;
+// };
+using namespace std;
 
 struct Mueble{
     float posicion;
-    float anchura;
+    float ancMuebleura;
+    Mueble(){}
+    Mueble(float pos, float ancMuebleo) : ancMuebleura(ancMuebleo), posicion(pos) {}
+    Mueble(const Mueble& m){
+        this->posicion = m.posicion;
+        this->ancMuebleura = m.ancMuebleura;
+    }
+    Mueble& operator=(const Mueble&);
 };
+
+// struct Mueble
+// {
+//     int u;
+// };
 
 class Cocina{
     public:
-        Cocina(size_t t);
-        ~Cocina();
+        Cocina(float fLongitud);
+        bool puedeColocarse(const Mueble& m) const;
+        void NuevoMueble(Mueble& m, float posicion);
+        const Mueble& mueble(unsigned int ubicacion);
+        void EliminarMueble(unsigned int ubicacion);
+        void MoverMueble(unsigned int ubicacion);
     private:
-        float longitud;
-        lista<Mueble> lista;
+        float _fLongitud;
+        unsigned int _uiNumMuebles;
+        Lista<Mueble> _aMuebles;
 };
 
-Cocina::Cocina(float l)
-{
-    if (l > 0)
-        longitud = l;
+Cocina::Cocina(float fLongitud) :_uiNumMuebles(0){
+    assert(fLongitud >= 0);
+    _fLongitud = fLongitud;
+    _aMuebles = Lista<Mueble>();
 }
 
+int main(){
+    std::cout<<"hola"<<endl;	
+    Cocina c(10);
+    Mueble m(1,2);
 
-
-
-
+    return 0;
+}
