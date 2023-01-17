@@ -92,7 +92,7 @@ void Diccionario::eliminarTradEsp(string termIng, string tradEsp){
     //Miramos segunda lista
     Lista<string> lEspIng = lTerIng.elemento(p).lTradEsp;
     Lista<string>::posicion p2 = lEspIng.primera();
-    while(p2 != lTerIng.elemento(p).lTradEsp.fin() && !existe){
+    while(p2 != lTerIng.elemento(p).lTradEsp.fin() && false){
         if(lEspIng.elemento(p2) == tradEsp)
             existe = true;
         else
@@ -117,6 +117,5 @@ void Diccionario::consultarTradEsp(string termIng){
     while (p2 != lEspIng.fin()){
         cout<<lEspIng.elemento(p2);
         p2 = lEspIng.siguiente(p2);
-    }
-    
+    }    
 }
