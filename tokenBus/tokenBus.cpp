@@ -5,9 +5,7 @@ struct trama{}; //estructura dada
 
 struct computador{
     public:
-        computador(char nom[8]):nombre(new char[8]), datos(Lista<trama>()){
-
-        }
+        computador(char nom[8]):nombre(new char[8]), datos(Lista<trama>()){}
         char* nombre_(){return nombre;}
 
     private:
