@@ -1,16 +1,12 @@
-#include "pilavec0.h" //Pila estatica
-#include "pilavec1.h" //Pila psudoestatica
-#include "pilaenla.h" //Pila dinámica
+#include "pila_enlazada.hpp" //Pila estatica
 
-#include "colavec.h"//Cola pseudo
-#include "colacir.h"//Cola vectorial circular
-#include "colaenla.h"//Cola enla o dinamica
-#include "colaenlacir.h"//Cola enla circular
+#include "cola.cpp"//Cola pseudo
 
-#include "listavec.h"//Lista pseudo
-#include "listaenla.h" //Lista enla
-#include "listadobleenla.h" //Lista doblemente enlazada
-#include "listacir.h"//Lista circular
+#include "lista_doble.h"
+
+using namespace std;
+
+#include <string.h>
 
 //-----------------------------------APUNTES DE TEORIA------------------------------------------------------------------------------------------------------------------
 //Pilas con bicolas
@@ -91,165 +87,80 @@ Pila<char> invertir(char a, char b, Pila<char> p){
 //definicion:
 //Un tren es una secuencia de elementos de tipo vagon de una longitud arbitraria
 //Hay un vagon activo por cada tren
+template <typename tVagon>
+//a) Especificacion 
+    //El vagon activo se encuntar en el tope de la pila derecha
+    //cosntructor
+    Tren();
 
-//El vagon activo el de la derecha
+    void desplazarIzqda();
+
+    void desplazarDrcha();
+
+    void eliminarVagonActivo();
+    
+    template <typename tVagon>
+    void insertarVagonActivo(tVagon v);
+
+    template <typename tVagon>
+    tVagon VagonVacio();
+
+    template <typename tVagon>
+    bool trenVacio();
+
+
+//b) Implementacion
+template <typename tVagon>
 class Tren{
     public:
-        Tren(){};
-        void izquierda();
-        void derecha();
-        void eliminar_activo();
-        void insertar_activo(const vagon &v);
-        vagon observar() const;
-        bool vacio() const;
-        ~Tren(){};
+        Tren();
+        void desplazarIzqda();
+        void desplazarDrcha();
+        void eliminarVagonActivo();
+        void insertarVagonActivo(tVagon v);
+        tVagon VagonVacio();
+        bool trenVacio();
     private:
-        Pila<vagon> TI, TD;
+        Pila<tVagon> pI;
+        Pila<tVagon> pD;
 };
 
-//Ojo con esta
-void Tren::izquierda(){
-    vagon aux = TD.tope();
-    TD.pop();
-    if(!TD.vacia()){
-        TI.push(aux);
-    }else{
-        TD.push(aux);
-    }
+template <typename tVagon>
+Tren::Tren():pI(Pila<tVagon>()), pD(Pila<tVagon>()){}
+
+template <typename tVagon>
+void Tren::desplazarIzqda(){
+    pI.push(pD.tope());
+    pD.pop();
 }
 
-void Tren::derecha(){
-    if(!TI.vacia()){
-        TD.push(TI.tope());
-        TI.pop();
-    }
+template <typename tVagon>
+void Tren::desplazarDrcha(){
+    pD.push(pI.tope());
+    pI.pop();
 }
 
-void Tren::eliminar_activo(){
-    if(!TD.vacia()){
-        TD.pop();
-        if(TD.vacia() && !TI.vacia()){
-            TD.push(TI.tope());
-            TI.pop();
-        }
-    }
+void Tren::eliminarVagonActivo(){
+    pD.pop();
 }
 
-void Tren::insertar_activo(const vagon &v){
-    TD.push(v);
+template <typename tVagon>
+void Tren::insertarVagonActivo(tVagon v){
+    pD.push(v);
 }
 
-vagon Tren::observar() const{
-    if(!TD.vacia()){
-        return TD.tope();
-    }
+
+template <typename tVagon>
+tVagon Tren::VagonVacio(){
+    return pD.tope();
 }
 
-bool Tren::vacio() const{
-    if(!TD.vacia() || !TI.vacia()){
-        return true;
-    }
-    else{
-        return false;
-    }
+bool TrenVacio(){
+    return (pD.vacia() && pI.vacia());
 }
 
-//TAD GESTOR IMPRESION-----------------------------------------------------------------------------------------------------------------------------------------------
-//En una oficina tienen una impresora que sirve a distintos usuarios, cada uno de los cuales puede 
-//enviar a la misma dos clases de trabajos, urgentes y no urgentes. Los trabajos de la misma clase
-//de un usuario concreto serán procesados por orden de llegada y siempre los urgentes antes que 
-//los que no lo sean. Asumiremos que los trabajos se identifican mediante un código único de tipo string.
-//La impresora atiende a los usuarios por turnos, de forma que al que le llega el turno imprime tan 
-//sólo uno de sus trabajos, a continuación, pasa el turno al siguiente usuario en espera y, si tiene 
-//trabajos pendientes, esperará a que le vuelva a llegar el turno después de que lo reciban todos 
-//los usuarios que ya estén esperando. Cuando un usuario envía su primer trabajo de impresión se 
-//le asigna el turno que sigue al del último en espera con trabajos pendientes. Un usuario pierde su 
-//turno al terminar de imprimir todos sus trabajos y se le asignará otro turno la próxima vez que solicite imprimir un nuevo trabajo.
 
-// a)	Especifica las siguientes operaciones del TAD Gestor de Impresión:
-//      •	Crear un gestor de impresión para n usuarios.
-//      •	Añadir un trabajo de un usuario y de una urgencia determinada.
-//      •	Eliminar el trabajo a imprimir
-//      •	Cancelar todos los trabajos de un usuario
-// b)	Implementa el TAD Gestor de Impresión según la especificación del apartado anterior, justificando razonadamente la estructura de datos empleada
-struct usuario{
-    Cola<string> CU;
-    Cola<string> CNU;
-};
 
-class Impresora{
-    public:
-        Impresora(size_t n);
-        void anadir(size_t codigo, bool urgencia, string trabajo);
-        void eliminar();
-        void cancelar(size_t codigo);
-        ~Impresora();
-    private:
-        Cola<size_t> cola_impresion;
-        size_t tam;
-        usuario* vector_usuarios;
-};
-
-Impresora::Impresora(size_t n):tam(n), vector_usuarios(new usuario[n]){}
-
-void Impresora::anadir(size_t codigo, bool urgencia, string trabajo){
-    if(codigo < n){
-        if(urgencia){
-            vector_usuarios[codigo].CU.push(trabajo);
-        }else{
-            vector_usuarios[codigo].CNU.push(trabajo);
-        }
-        Cola<size_t> aux = cola_impresion;
-        Cola<size_t> aux2;
-        while(!aux.vacia() && aux.frente() != codigo){
-            aux2.push(aux.frente());
-            aux.pop();
-        }
-        if(aux.vacia()){
-            cola_impresion.push(codigo);
-        }
-    }
-}
-
-void Impresora::eliminar(){
-    if(!cola_impresion.vacia()){
-        size_t cod = cola_impresion.frente();
-        cola_impresion.pop();
-
-        if(!vector_usuarios[cod].CU.vacia()){
-            vector_usuarios[cod].CU.pop();
-        }
-        else{
-            vector_usuarios[cod].CNU.pop();
-        }
-        if(!vector_usuarios[cod].CU.vacia() || !vector_usuarios[cod].CNU.vacia()){
-            cola_impresion.push(cod);
-        }
-    }
-}
-
-void Impresora::cancelar(size_t codigo){
-    Cola<size_t> aux;
-    while(!cola_impresion.vacia() && cola_impresion.frente() != codigo){
-        aux.push(cola_impresion.frente());
-        cola_impresion.pop();
-    }
-    if(cola_impresion.frente() == codigo){
-        cola_impresion.pop();
-    }
-    while(!cola_impresion.vacia()){
-        aux.push(cola_impresion.frente());
-        cola_impresion.pop();
-    }
-    cola_impresion = aux;
-
-    vector_usuarios[codigo].CU = Cola<string>{};
-    vector_usuarios[codigo].CNU = Cola<string>{};
-}
-
-Impresora::~Impresora(){
-    delete[] vector_usuarios;
-}
 
 //TAD DICCIONARIO------------------------------------------------------------------------------------------------------------------------------------------------------
 //Crear un diccionario de traduccion de palabras de ingles a español
@@ -262,7 +173,15 @@ Impresora::~Impresora(){
 //consultar todas las traducciones del español de una palabra en ingles
 //eliminar una traduccion en español de una palabra en ingles
 //eliminar el diccionario
+//a) Especificacion
+    Diccionario();
+    void insertarEsIN(string pEs, string pIn);
+    bool correcta(string pEs, string pIn);
+    Lista<string> consultarIn(string pIn);
+    void eliminarTraduccionEs(string pEs, string pIn);
+    ~Diccionario();
 
+//b)Implementacion
 struct palabra{
     string  word;
     Lista<string> traducciones;
@@ -271,10 +190,10 @@ struct palabra{
 class Diccionario{
     public:
         Diccionario(){};
-        void insertar(string pingles, string pespanol);
-        bool consultar(string pingles, string pespanol) const;
-        Lista<string> traducciones(string pingles) const;
-        void eliminar(string pingles, string pespanol);
+        void insertar(string pngles, string pEspanol);
+        bool consultar(string pIngles, string pEspanol) const;
+        Lista<string> traducciones(string pIngles) const;
+        void eliminar(string pIngles, string pEspanol);
         ~Diccionario(){};
     private:
         Lista<palabra> palabras;
@@ -282,208 +201,207 @@ class Diccionario{
         typedef typename Lista<string>::posicion p_trad;
 };
 
-void Diccionario::insertar(string pingles, string pespanol){
-    p_palabra p = palabras.primera();
+Diccionario::Diccionario():palabras(Lista<palabra>()){}
 
-    while(p != palabras.fin()){
-        if(palabras.elemento(p).word == pingles){
-            p_trad pe = palabras.elemento(p).traducciones.primera();
-            while(pe != palabras.elemento(p).traducciones.fin()){
-                if(pespanol < palabras.elemento(p).traducciones.elemento(pe)){
-                    palabras.elemento(p).traducciones.insertar(pespanol, pe);
+void insertarEsIN(string pEspanol, string pIngles){
+    p_palabra = palabras.primera();
+    while(p_palabra != palabras.pfin()){
+        //existe la palabra
+        if(palabras.elemento(p_palabra).word == pIngles){
+            p_trad = palabras.elemento(p_palabra).traducciones.primera();
+            while(p_trad != palabras.elemento(p_palabra).traducciones.fin()){
+                //no existe la traduccion la mtemos ordenada, si existiera no se mete
+                if(palabras.elemento(p_palabra).traducciones.elemento(p_trad) != pEspanol){
+                    //encontramos la posicion para insertar
+                    if(pEspanol < palabras.elemento(p_palabra).traducciones.elemento(p_trad))
+                        palabras.elemento(p_palabra).traducciones.insertar(pEspanol, p_trad);
                 }
-                pe = palabras.elemento(p).traducciones.siguiente(pe);
+                p_trad = palabras.elemento(p_palabra).traducciones.siguiente(p_trad);
             }
+            p_palabra = palabras.fin();
         }
-        p = palabras.siguiente(p);
-    }
-
-    p = palabras.primera();
-    while(p != palabras.fin()){
-        if(pingles < palabras.elemento(p).word){
-            palabra p_;
-            p_.word = pingles;
-            p_trad pe = palabras.elemento(p).traducciones.primera();
-            p_.traducciones.insertar(pespanol, pe);
-
-            palabras.insertar(p_, p);
+        //no existe la palabra
+        else{
+            if(pIngles < palabras.elemento(p_palabra).word){
+                //metemos palabra inglesa
+                palabra p(pIngles, Lista<string> ());
+                palabras.insertar(p, p_palabra);
+                //metemos traduccion
+                palabras.elemento(p_palabra).traducciones.insertar(pEspanol,  palabras.elemento(p_palabra).traducciones.fin());
+                p_palabra = palabras.fin();
+            }
+            p_palabra = palabras.siguiente(p_palabra);
         }
-        p = palabras.siguiente();
+            
     }
+    p_palabra = palabras.siguiente(p_palabra);
 }
 
-bool Diccionario::consultar(string pingles, string pespanol) const{
-    p_palabra pi =  palabras.primera();
-
-    while(pi != palabras.fin()){
-        if(palabras.elemento(pi) == pingles){
-            p_trad pe = palabras.elemento(pi).traducciones.primera();
-
-            while(pe != palabras.elemento(pi).traducciones.fin()){
-                if(palabras.elemento(pi).traducciones.elemento(pe) == pespanol){
+bool Diccionario::consultar(string pIngles, string pEspanol) const{
+    p_palabra = palabras.primera();
+    while(p_palabra != palabras.fin()){
+        if(palabras.elemento(p_palabra).word == pIngles){
+            p_trad = palabras.elemento(p_palabra).traducciones.primera();
+            while(p_trad != palabras.elemento(p_palabra).traducciones.fin()){
+                if(palabras.elemento(p_palabra).traducciones.elemento(p_trad) == pEspanol)
                     return true;
-                }
-                pe = palabras.elemento(pi).traducciones.siguiente(pe);
+                else
+                    p_trad = palabras.elemento(p_palabra).traducciones.siguiente(p_trad);
             }
+            p_palabra = palabras.fin();
         }
-        pi = palabras.siguiente(pi);
+        p_palabra = palabras.siguiente(p_palabra);
     }
-
     return false;
 }
 
-Lista<string> Diccionario::traducciones(string pingles) const{
-    p_palabra pi =  palabras.primera();
-
-    while(pi != palabras.fin()){
-        if(palabras.elemento(pi) == pingles){
-           return palabras.elemento(pi).traducciones;
-        }
-        pi = palabras.siguiente(pi);
+Lista<string> traducciones(string pIngles) const{
+    p_palabra = palabras.primera();
+    while(p_palabra != palabras.pfin()){
+        if(palabras.elemento(p_palabra).word == pIngles){
+            return palabras.elemento(p_palabra).traducciones;
+        }          
     }
+    p_palabra = palabras.siguiente(p_palabra);
 }
 
-void Diccionario::eliminar(string pingles, string pespanol){
-    p_palabra pi =  palabras.primera();
-
-    while(pi != palabras.fin()){
-        if(palabras.elemento(pi) == pingles){
-            p_trad pe = palabras.elemento(pi).traducciones.primera();
-
-            while(pe != palabras.elemento(pi).traducciones.fin()){
-                if(palabras.elemento(pi).traducciones.elemento(pe) == pespanol){
-                    palabras.elemento(pi).traducciones.eliminar(pe);
+void eliminar(string pIngles, string pEspanol){
+    p_palabra = palabras.primera();
+    while(p_palabra != palabras.fin()){
+        if(palabras.elemento(p_palabra).word == pIngles){
+            p_trad = palabras.elemento(p_palabra).traducciones.primera();
+            while(p_trad != palabras.elemento(p_palabra).traducciones.fin()){
+                if(palabras.elemento(p_palabra).traducciones.elemento(p_trad) == pEspanol){
+                    palabras.elemento(p_palabra).traducciones.eliminar(p_trad);
+                    p_palabra = palabras.fin();
                 }
-                pe = palabras.elemento(pi).traducciones.siguiente(pe);
             }
         }
-        pi = palabras.siguiente(pi);
+        p_palabra = palabras.siguiente(p_palabra);
     }
+    return false;
 }
 
-//TAD CONSULTORIO DE UN MEDICO------------------------------------------------------------------------------------------------------------------------------------------
-/*Especificacion:*/
-/*Consultorio():
-	·Precondicion:-------.
-	·Postcondicion:Crea un Consultorio vacio.
-*/
-/*void altaMedico(const Medico& M):
-	·Precondicion:Medico no debe estar dado de alta.
-	·Postcondicion:Da de alta al medico.
-*/
-/*void bajaMedico(const Medico& M):
-	·Precondicion:Medico debe estar dado de alta.
-	·Postcondicion:Dar de baja al medico.
-*/
-/*void ponerPaciente(const Medico& M,const Paciente& P):
-	·Precondicion:Medico debe estar dado de alta.
-	·Postcondicion:Pone al paciente en lista de espera del medico M.
-*/
-/*Paciente verPaciente(const Medico& M):
-	·Precondicion:Medico debe estar dado de alta y tiene al menos un paciente en lista de espera.
-	·Poscondicion:Devuelve la persona que le toca.
-*/
-/*void atenderPaciente(const Medico& M):
-	·Precondicion:Medico debe estar dado de alta y debe tener un paciente minimo.
-	·Postcondicion:Se atiende al paciente que le toca, por lo que desaparece de la lista de espera.
-*/
-/*bool medicoVacio(const Medico& M)const:
-	·Precondicion:Medico debe estar dado de alta.
-	·Postcondicion:Devuelve true si medico no tiene pacientes, false en otro caso.
-*/
 
+//TAD CONSULTORIO DE UN MEDICO------------------------------------------------------------------------------------------------------------------------------------------
+/*La dirección de un hospital quiere informatizar su consultorio médico con un programa que realice las
+siguientes operaciones:
+- Generar un consultorio vacío.
+- Dar de alta a un médico.
+- Dar de baja a un médico.
+- Poner a un paciente en la lista de espera de un médico.
+- Consultar al paciente a quien le toca el turno para ser atendido.
+- Atender al paciente que le toque por parte de un médico.
+- Comprobar su un médico determinado tiene o no pacientes en espera.
+a) Realice la especificación del TAD
+b)Diseñe una estructura de datos adecuada para representar el TAD e implemente las operaciones
+anteriores.
+NOTA: Es absolutamente necesario definir todos los tipos de datos implicados en la resolución del ejercicio,
+así como los prototipos de las operaciones utilizadas de los TADs conocidos.:*/
+//a) Especificacion
+    Consultorio();
+    //precondicion: medico no se encuentre en el consultorio
+    void darAlta(string idMedico);
+    //postcondicon: el medico forma parte del consultorio
+    void darBaja(string idMedico);
+    void ponerEspera(string idPaciente, string idMedico);
+    idPaciente consultarTurno(string idMedico);
+    void atender(string idMedico);
+    bool espera(string idMedico);
+//b) Implementacion
 struct medico{
-    int codigo;
-    Cola<int> pacientes;
-};
+    string idMedico;
+    Cola<string> cPacientes;
+    medico(string s):idMedico(s), cPacientes(Cola<string>()){}
+}
 
 class Consultorio{
     public:
-        Consultorio(){};
-        void altamedico(int medico_);
-        void bajamedico(int medico_);
-        void ponerpaciente(int medico_, int paciente);
-        int verpaciente(int medico_) const;
-        void atenderpaciente(int medico_);
-        bool medicovacio(int medico_) const;
-        ~Consultorio(){};
+        Consultorio();
+        void darAlta(string idMedico);
+        void darBaja(string idMedico);
+        void ponerEspera(string idPaciente, string idMedico);
+        idPaciente consultarTurno(string idMedico);
+        void atender(string idMedico);
+        bool espera(string idMedico);
     private:
-        Lista<medico> medicos;
-        typedef typename Lista<medicos>::posicion p;
-        p buscar(int medico_);
-};
+        Lista<medico> lista;
+        Lista<medico>::posicion pos;
+        pos buscarMedico(string idMedico) const;
 
-Consultorio::p Consultorio::buscar(int medico_){
-    p p = medicos.primera();
+}
 
-    while(p != medicos.fin()){
-        if(medicos.elemento(p).codigo == medico_){
+//devuelve fin si no lo encuntra
+pos Consultorio::buscarMedico(string idMedico) const{
+    pos p = lsista.primera();
+    while(p != lista.fin()){
+        if(lista.elemento(p).idMedico == idMedico)
             return p;
-        }
-        p = medicos.siguiente(p);
+        else
+            p = lista.siguiente(p);
     }
-
     return p;
 }
 
-void Consultorio::altamedico(int medico_){
-    medico m;
-    m.codigo = medico_;
-    p aux = buscar(medico_);
+Consultorio::Consultorio():lista(Lista<medico>()){}
 
-    assert(aux == medicos.fin());
-    
-    medicos.insertar(m, medicos.fin());
-}
-
-void Consultorio::bajamedico(int medico_){
-    p aux = buscar(medico_);
-
-    assert(aux != medicos.fin());
-
-    medicos.eliminar(aux);
-}
-
-void Consultorio::ponerpaciente(int medico_, int paciente){
-    p aux = buscar(medico_);
-
-    assert(aux != medicos.fin());
-
-    medicos.elemento(aux).pacientes.push(paciente);
-}
-
-int Consultorio::verpaciente(int medico_) const{
-    p aux = buscar(medico_);
-
-    assert(aux != medicos.fin());
-
-    assert(!medicos.elemento(aux).pacientes.vacia());
-
-    return medicos.elemento(aux).pacientes.frente();
-}
-
-void Consultorio::atenderpaciente(int medico_){
-    p aux = buscar(medico_);
-    
-    assert(aux != medicos.fin());
-
-    assert(!medicos.elemento(aux).pacientes.vacia());
-
-    medicos.elemento(aux).pacientes.pop();
-}
-
-bool Consultorio::medicovacio(int medico_) const{
-    p aux = buscar(medico_);
-
-    assert(aux != medicos.fin());
-
-    if(medicos.elemento(aux).pacientes.vacia()){
-        return true;
-    }
-    else{
-        return false;
+void Consultorio::darAlta(string idMedico){
+    pos p = buscar(idMedico);
+    if(p == lista.fin()){
+        medico m(idMedico);
+        lista.insertar(m,p);
     }
 }
+
+void Consultorio::darBaja(string idMedico){
+    pos p = buscar(idMedico);
+    if(p != lista.fin()){
+        lista.eliminar(p);
+    }
+}
+
+void Consultorio::ponerEspera(string idPaciente, string idMedico){
+    bool encontrado = false;
+    pos p = buscar(idMedico);
+    if(p != lista.fin()){
+        Cola<string> cAux;
+        while(!lista.elemento(p).cPacientes.vacia()){
+            //se encontraba en la cola
+            if(lista.elemento(p).cPacientes.frente() == idPaciente){
+                encontrado = true;
+            }
+            cAux.push(lista.elemento(p).cPacientes.frente());
+            lista.elemento(p).cPacientes.pop();
+        }
+        lista.elegida(p).cPacientes = cAux;
+        if(!encontrado){
+            lista.elemento(p).push(paciente);
+        }
+    }
+}
+
+idPaciente Consultorio::consultarTurno(string idMedico){
+    pos p = buscar(idMedico);
+    if(p != lista.fin()){
+        return lista.elemento(p).cPacientes.frente();
+    }
+}
+
+void atender(string idMedico){
+    pos p = buscar(idMedico);
+    if(p != lista.fin()){
+        lista.elemento(p).cPacientes.pop();
+    }
+}
+
+bool espera(string idMedico){
+    pos p = buscar(idMedico);
+    if(p != lista.fin()){
+        return lista.elemento(p).cPacientes.vacia();
+    }
+}
+
+
 
 //TAD TOKEN BUS-------------------------------------------------------------------------------------------------------------------------------------------------------
 /* El estándar IEE 802.4 define las redes TokenBus. TokenBus combina una estructura de bus 
@@ -508,149 +426,7 @@ El objetivo es diseñar un tad con las siguientes operaciones:
 -	Enviar una trama concreta del computador A al computador B. Suponemos que trama es un tipo ya definido */
 
 
-struct computador{
-    char nombre[8];
-    bool token;
-    trama mensaje;
-};
 
-class Token_Bus{
-    public:
-        Token_Bus(char nom_comp, trama msj);
-        void anadir_computador(char nom_comp, trama msj);
-        void eliminar_computador();
-        void pasar_token();
-        char token() const;
-        void enviar(char comp1, char comp2);
-        ~Token_Bus(){};
-    private:
-        static const int max;
-        Cola<computador> Bus;
-};
-
-Token_Bus::Token_Bus(char nom_comp, trama msj){
-    max = 25;
-    computador c;
-    c.nombre = nom_comp;
-    c.token = true;
-    c.mensaje = msj;
-    
-    Bus = Cola<computador>(25);
-    Bus.insertar(c);
-}
-
-void Token_Bus::anadir_computador(char nom_comp, trama msj){
-    assert(!Bus.llena());
-    
-    Cola<computador> aux = Bus;
-
-    bool encontrado = false;
-
-    while(!aux.vacia() && !encontrado){
-        if(aux.frente == nom_comp){
-            encontrado = true;
-        }
-        aux.pop();
-    }
-
-    if(!encontrado){
-        computador c;
-        c.nombre = nom_comp;
-        c.token = false;
-        c.mensaje = msj;
-
-        Bus.push(c);
-    }
-
-}
-
-void Token_Bus::eliminar_computador(){
-    assert(!Bus.vacia());
-
-    if(Bus.frente().token == true){
-        Bus.pop();
-        if(!Bus.vacia()){
-            Bus.frente().token = true;
-        }
-    }else{
-        Bus.pop();
-    }
-}
-
-void Token_Bus::pasar_token(){
-    assert(!Bus.vacia());
-
-    Cola<computador> aux(25);
-
-    while(!Bus.vacia() && !Bus.frente().token){
-        aux.push(Bus.frente());
-        Bus.pop();
-    }
-    if(Bus.frente().token == true){
-        Bus.frente().token = false;
-        aux.push(Bus.frente());
-        Bus.pop();
-        if(!Bus.vacia()){
-            Bus.frente().token = true;
-            while(!Bus.vacia()){
-                aux.push(Bus.frente());
-                Bus.pop();
-            }
-            while(!aux.vacia()){
-                Bus.push(aux.frente());
-                aux.pop();
-            }
-        }else{
-            aux.frente().token = true;
-            while(!aux.vacia()){
-                Bus.push(aux.frente());
-                aux.pop();
-            }
-        }
-    }
-    while(!aux.vacia()){
-        Bus.push(aux.frente());
-        aux.pop();
-    }
-}
-
-char Token_Bus::token(){
-    assert(!Bus.vacia());
-
-    Cola<computador> aux(25);
-
-    while(!Bus.vacia() && !Bus.frente().token){
-        aux.push(Bus.frente());
-        Bus.pop();
-    }
-    if(Bus.frente().token){
-        return Bus.frente().nombre;
-    }
-}
-
-void Token_Bus::enviar(char comp1, char comp2){
-    assert(!Bus.vacia());
-
-    assert(comp1 == token());
-
-    Cola<computador> aux(25);
-
-    while(!Bus.vacia()){
-        if(Bus.frente().nombre == comp1){
-            trama msj1 = Bus.frente().mensaje;
-        }
-        aux.push(Bus.frente());
-        Bus.pop();
-    }
-
-    while(!aux.vacia()){
-        if(aux.frente().nombre == comp2){
-            aux.frente().mensaje = msj1;
-        }
-        Bus.push(aux.frente());
-        aux.pop();
-    }
-}
 
 //TAD CUBILETE----------------------------------------------------------------------------------------------------------------------------------------------------------
 /*Un conocido juguete está formado por una colección de cubiletes de diferentes tamaños que se
@@ -664,30 +440,7 @@ de abajo hacia arriba).
     b) Implemente una función que dada una pila cualquiera de cubiletes simule el juego y 
     devuelva la nueva pila construida. La solución se basará exclusivamente en el TAD Pila. */
 
-struct cubilete{
-    int tam;
-    bool abajo;
-};
 
-
-Pila<cubilete> apilar(Pila<cubilete> pilaOriginal){
-    Pila<cubilete> fin;
-
-    while(!pilaOriginal.vacia()){
-        cubilete cub = pilaOriginal.tope();
-        pilaOriginal.pop();
-        cub.abajo = true;
-
-        while(!fin.vacia() && fin.tope().tam < cub.tam){
-            pilaOriginal.push(fin.tope());
-            fin.pop();
-        }
-
-        fin.push(cub);
-    }
-
-    return fin;
-}
 
 
 //TAD HOSPITAL--------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -714,256 +467,48 @@ Pila<cubilete> apilar(Pila<cubilete> pilaOriginal){
 // destruir hospital
 
 //Lista ordenada
-struct paciente{
-    int codigo;
-    int gravedad;
-};
 
-class Hospital{
-    public:
-        Hospital(int tu, int tp);
-        void ingreso(int cod_pac, int grav);
-        void alta(int cod_pac);
-        void muerte(int cod_pac);
-        size_t pacientes_uci() const;
-        size_t pacientes_planta() const;
-        size_t pacientes_grav(int grav);
-        ~Hospital(){};
-    private:
-        size_t tam_uci, tam_planta;
-        Lista<paciente> UCI;
-        Lista<paciente> PLANTA;
-        typedef typename Lista<paciente>::posicion p;
-};
 
-Hospital::Hospital(int tu, int tp):tam_uci(tu), tam_planta(tp), UCI(Lista<paciente>(tu)), PLANTA(Lista<paciente>(tp)){}
-
-void Hospital::ingreso(int cod_pac, int grav){
-    paciente pa;
-    pa.codigo = cod_pac;
-    pa.gravedad = grav;
-
-    //Esto es para la UCI
-    if(grav > 0 && grav < 6){
-        //Si la Uci no esta llena
-        if(!UCI.llena()){
-            p pu = UCI.primera();
-            while(pu != UCI.fin() && UCI.elemento(pu).gravedad < grav){
-                pu = UCI.siguiente(pu);
-            }
-            if(UCI.elemento(pu).gravedad < grav){
-                UCI.insertar(pa, pu);
-            }
-        }//Si la Uci esta llena
-        else{
-            //Esto es si yo estoy mas sano que el mas sano de la UCI
-            if(UCI.elemento(UCI.fin()).gravedad < grav){
-                //Si la planta no esta llena
-                if(!PLANTA.llena()){
-                    p pp = PLANTA.primera();
-                    while(pp != PLANTA.fin() && PLANTA.elemento(pp).gravedad < grav){
-                        pp = PLANTA.siguiente(pp);
-                    }
-                    if(PLANTA.elemento(pp).gravedad < grav){
-                        PLANTA.insertar(pa, pp);
-                    }
-                }//Si la planta esta llena
-                else{   
-                    if(grav < PLANTA.elemento(PLANTA.fin()).gravedad){
-                        PLANTA.eliminar(PLANTA.fin());
-                        p pp = PLANTA.primera();
-                        while(pp != PLANTA.fin() && PLANTA.elemento(pp).gravedad < grav){
-                            pp = PLANTA.siguiente(pp);
-                        }
-                        if(PLANTA.elemento(pp).gravedad < grav){
-                            PLANTA.insertar(pa, pp);
-                        }
-                    }
-                }
-            }//Si yo no estoy mas sano que el mas sano de la uci
-            else{
-                //Si la planta no esta llena
-                if(!PLANTA.llena()){
-                    paciente mas_sano_uci;
-                    mas_sano_uci.gravedad = UCI.elemento(UCI.fin()).gravedad;
-                    mas_sano_uci.codigo = UCI.elemento(UCI.fin()).codigo;
-                    UCI.eliminar(UCI.fin());
-                    p pu = UCI.primera();
-                    while(pu != UCI.fin() && UCI.elemento(pu).gravedad < grav){
-                        pu = UCI.siguiente(pu);
-                    }
-                    if(UCI.elemento(pu).gravedad < grav){
-                        UCI.insertar(pa, pu);
-                    }
-
-                    p pp = PLANTA.primera();
-                    while(pp != PLANTA.fin() && PLANTA.elemento(pp).gravedad < mas_sano_uci.gravedad){
-                        pp = PLANTA.siguiente(pp);
-                    }
-                    if(PLANTA.elemento(pp).gravedad < mas_sano_uci.gravedad){
-                        PLANTA.insertar(mas_sano_uci, pp);
-                    }
-                }//Si la planta esta llena
-                else{   
-                    if(mas_sano_uci.gravedad < PLANTA.elemento(PLANTA.fin()).gravedad){
-                        PLANTA.eliminar(PLANTA.fin());
-                        p pp = PLANTA.primera();
-                        while(pp != PLANTA.fin() && PLANTA.elemento(pp).gravedad < mas_sano_uci.gravedad){
-                            pp = PLANTA.siguiente(pp);
-                        }
-                        if(PLANTA.elemento(pp).gravedad < mas_sano_uci.gravedad){
-                            PLANTA.insertar(mas_sano_uci, pp);
-                        }
-                    }
-                }
-            }
-        }
-    }//ESto es para la planta
-    else if(grav > 5 && grav < 10){
-        //Si la planta no esta llena
-        if(!PLANTA.llena()){
-            p pp = PLANTA.primera();
-            while(pp != PLANTA.fin() && PLANTA.elemento(pp).gravedad < grav){
-                pp = PLANTA.siguiente(pp);
-            }
-            if(PLANTA.elemento(pp).gravedad < grav){
-                PLANTA.insertar(pa, pp);
-            }
-        }//Si la planta esta llena
-        else{   
-            if(grav < PLANTA.elemento(PLANTA.fin()).gravedad){
-                PLANTA.eliminar(PLANTA.fin());
-                p pp = PLANTA.primera();
-                while(pp != PLANTA.fin() && PLANTA.elemento(pp).gravedad < grav){
-                    pp = PLANTA.siguiente(pa, pp);
-                }
-                if(PLANTA.elemento(pp).gravedad < grav){
-                    PLANTA.insertar(pa, pp);
-                }
-            }
-        }
-    }
-}
-
-void Hospital::alta(int cod_pac){
-    p pu = UCI.primera();
-    p pp = PLANTA.primera();
-
-    while(pu != UCI.fin() && UCI.elemento(pu).codigo != cod_pac){
-        pu = UCI.siguiente(pu);
-    }
-    if(UCI.elemento(pu).codigo == cod_pac){
-        UCI.eliminar(pu);
-    }else{
-        while(pp != PLANTA.fin() && PLANTA.elemento(pp).codigo != cod_pac){
-            pp = PLANTA.siguiente(pp);
-        }
-        if(PLANTA.elemento(pp).codigo == cod_pac){
-            PLANTA.eliminar(pp);
-        }
-    }
-}
-
-void Hospital::muerte(int cod_pac){
-    alta(cod_pac);
-}
-
-size_t Hospital::pacientes_uci() const{
-    p pu = UCI.primera();
-    size_t cont = 0;
-
-    while(pu != UCI.fin()){
-        pu = UCI.siguiente(pu);
-        cont++;
-    }
-    return cont;
-}
-
-size_t Hospital::pacientes_planta() const{
-    p pp = PLANTA.primera();
-    size_t cont = 0;
-
-    while(pp != PLANTA.fin()){
-        pp = PLANTA.siguiente(pp);
-        cont++;
-    }
-    return cont;
-}
-
-size_t Hospital::pacientes_grav(int grav){
-    size_t cont = 0;
-    if(grav > 0 && grav < 6){
-        if(UCI.elemento(UCI.fin()).grav < grav){
-            p pp = PLANTA.primera();
-            while(pp != PLANTA.fin()){
-                if(PLANTA.elemento(pp).gravedad == grav){
-                    cont++;
-                }
-                pp = PLANTA.siguiente(pp);
-            }
-        }else{
-            p pu = UCI.primera();
-            while(pu != UCI.fin()){
-                pu = UCI.siguiente(pu);
-                if(UCI.elemento(pu).gravedad == grav){
-                    cont++;
-                }
-            }
-        }
-    }else{
-        p pu = UCI.primera();
-        while(pu != UCI.fin()){
-            pu = UCI.siguiente(pu);
-            if(UCI.elemento(pu).gravedad == grav){
-                cont++;
-            }
-        }
-    }
-
-    return cont;
-}
-
-//TAD TEXTO haz una estructura y una función que se llama MostrarTexto() que ponga por pantalla el texto bien. Si hay una @ se elimina---------------------------------
-// lo de su izq y si hay un # se elimina todo a la izqda de el.
-//Ejemplo: El municipl@io -> El municipio
-
+//TAD TEXTO 
+/*Diseña la estructura de datos para almacenar en memoria un texto del cual desconocemos el número de
+líneas y de caracteres por línea. Sabemos que el texto solo consta de caracteres alfanuméricos y signos de
+puntuación, es decir, en él no aparecen caracteres de control como fin de línea, retorno de carro...
+Sin embargo, hay caracteres especiales que pueden aparecer un número indeterminado de veces.
+@ indica el borrado del carácter anterior. En caso de que aparezca varios consecutivos, solo tiene efecto
+el primero; el resto, aunque se almacene, se ignora. Este carácter no aparece al principio de ninguna línea.
+#indica el borrado de la línea completa. Si aparecen varias igual, solo aparecerá al final de la línea.
+Escribe una función MostrarTexto().
+Al realizar este volcado de pantalla no te preocupes por el número de caracteres ni de líneas.*/
 struct linea{
     Lista<char> caracteres;
+    Lista<char> pos2;
 };
 
 class Texto{
-    public:
-        Texto(Lista<linea> texto);
-        void mostrar_texto();
+    public: 
+        MostrarTexto();
     private:
         Lista<linea> lineas;
+        Lista<linea>::posicion pos;
 };
 
-Texto::Texto(Lista<linea> texto):lineas(texto){}
-
-void Texto::mostrar_texto(){
-    Lista<linea>::posicion p1 = lineas.primera();
-
-    while(p1 != lineas.ultima()){
-        Lista<char>::posicion p2 = lineas.elemento(p1).caracteres.fin();
-        while(p2 != lineas.elemento(p1).caracteres.primera()){
-            if(lineas.elemento(p1).caracteres.elemento(p2) == '@'){
-                lineas.elemento(p1).caracteres.eliminar(lineas.elemento(p1).caracteres.anterior(p2));
-                lineas.elemento(p1).caracteres.eliminar(p2);
+void Texto::MostrarTexto(){
+    pos p = lienas.primera();
+    while(p != lineas.fin()){
+        pos2 p2 = caracteres.primera()
+        while(p2 != lineas.elemento(p).caracteres.fin()){
+            if(lineas.elemento(p).caracteres.elemento(p2) == '@'){
+                lineas.elemento(p).caracteres.eliminar(lineas.elemento(p).caracteres.siguiente(p2));
+            }else if(lineas.elemento(p).caracteres.elemento(p2) == '#'){
+                Lista<char> l();
+                lineas.elemento(p).caracteres = l;
             }
-            else if(lineas.elemento(p1).caracteres.elemento(p2) == '#'){
-                while(p2 != lineas.elemento(p1).caracteres.primera()){
-                    lineas.elemento(p1).caracteres.eliminar(p2);
-                    p2 = lineas.elemento(p1).caracteres.anterior();
-                }
-            }
-            p2 = lineas.elemento(p1).caracteres.anterior(p2 );
+            p2 = lineas.elemento(p).caracteres.siguiente(p2)
         }
+        p = lineas.siguiente(p);
     }
-
-    //Insercion de flujo la hice en poo si quieres la buscas dlh
-    cout<<lineas;
 }
+
 
 //TAD HIPERMERCADO------------------------------------------------------------------------------------------------------------------------------------------------------
 // Un hipermercado dispone para el pago de las compras de 50 cajas numeradas del 1 al 50. El número de cajas que permanecen abiertas
@@ -1671,3 +1216,24 @@ void Radio::borrar_n_canciones(int n){
     }
 
 }
+//TAD GESTOR IMPRESION-----------------------------------------------------------------------------------------------------------------------------------------------
+//En una oficina tienen una impresora que sirve a distintos usuarios, cada uno de los cuales puede 
+//enviar a la misma dos clases de trabajos, urgentes y no urgentes. Los trabajos de la misma clase
+//de un usuario concreto serán procesados por orden de llegada y siempre los urgentes antes que 
+//los que no lo sean. Asumiremos que los trabajos se identifican mediante un código único de tipo string.
+//La impresora atiende a los usuarios por turnos, de forma que al que le llega el turno imprime tan 
+//sólo uno de sus trabajos, a continuación, pasa el turno al siguiente usuario en espera y, si tiene 
+//trabajos pendientes, esperará a que le vuelva a llegar el turno después de que lo reciban todos 
+//los usuarios que ya estén esperando. Cuando un usuario envía su primer trabajo de impresión se 
+//le asigna el turno que sigue al del último en espera con trabajos pendientes. Un usuario pierde su 
+//turno al terminar de imprimir todos sus trabajos y se le asignará otro turno la próxima vez que solicite imprimir un nuevo trabajo.
+
+// a)	Especifica las siguientes operaciones del TAD Gestor de Impresión:
+//      •	Crear un gestor de impresión para n usuarios.
+//      •	Añadir un trabajo de un usuario y de una urgencia determinada.
+//      •	Eliminar el trabajo a imprimir
+//      •	Cancelar todos los trabajos de un usuario
+// b)	Implementa el TAD Gestor de Impresión según la especificación del apartado anterior, justificando razonadamente la estructura de datos empleada
+
+
+//TAD AVERIA--------------------------------------------------------------------------------------------------------------------------------------------------------

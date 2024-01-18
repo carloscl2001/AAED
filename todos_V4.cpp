@@ -69,28 +69,25 @@ Pila<char> invertir(char a, char b, Pila<char> p){
 }
 
 //TAD TREN--------------------------------------------------------------------------------------------------------------------------------------------------------------
-//Realizar la especificacion e implementacion de un tad tren que sirva para representar secuencias
-// de longitud arbitraria de vagones, se supone que el tipo vagon esta predefinido
-//si la secuencia no esta vacia hay un vagon de tren denominado activo sobre el que puede
-//actuar un robot manipulador, las operaciones que se piden son:
-// - crea un tren
-// - desplazar a la izquieda ( mueve un tren una posicion a la izq, de manera que el nuevo vagon activo es el que está
-// inmediatamente a la derecha del actual, si no hay vagon a la derecha no se hace nada )
-// -desplazar a la derecha ( simetrica a la anterior)
-// -eliminar el vagon activo ( se suprime el vagon activo y se convierte en activo el que está indediatamenta a su derecha
-// si este no existe se activa el de su izquierda , y si este ultimo no existe el tren queda vacio
-// - insertar vagon activo ( añade un nuevo vagon al tren desplazando el actual vagon activo
-// y los siguientes una posicion a la derecha )
-// - observar el vagon activo ( una camara fija situada sobre el robot, devuelve el vagón activo)
-// - tren vacio ( indica si el tren tiene vagones )
-
-// NOTA: se prohibe expresamente utilizar una estructura doblemente enlazada
-// y se exige que el coste de todas las operaciones sea constante, es decir, independientemente
-// del numero de vagones del tren.//
-
-//definicion:
-//Un tren es una secuencia de elementos de tipo vagon de una longitud arbitraria
-//Hay un vagon activo por cada tren
+/*Realizar la especificación e implementación de un TAD Tren que sirva para representar secuencias (de
+longitud arbitraria) de vagones (se supone que el tipo vagón está predefinido). Si la secuencia no está
+vacía, hay un vagón del tren denominado “activo” sobre el que puede actuar un robot manipulador. Las
+operaciones que se piden son:
+- Crear un tren.
+- Desplazar a la izquierda: Mueve un tren una posición a la izquierda de manera que el nuevo vagón activo
+es el que está inmediatamente a la derecha del actual. Si no hay vagón a la derecha no se hace nada.
+- Desplazar a la derecha: Simétrica a la anterior.
+- Eliminar el vagón activo: Se suprime el vagón activo y se convierte en activo el que está inmediatamente
+a su derecha. Si éste no existe, se activa el de su izquierda. Y si éste último tampoco existe, el tren queda
+vacío.
+- Insertar vagón activo: Añade un nuevo vagón al tren desplazando el actual Vagón activo y los siguientes
+una posición hacia la derecha
+- Observar el vagón activo: Una cámara fija situada sobre el robot devuelve el vagón activo.
+- Tren vacío: indica si el tren tiene vagones.
+Nota: Se prohíbe expresamente utilizar una estructura doblemente enlazada. Y se exige que el coste de
+todas las operaciones sea constante, es decir, independiente del número de vagones del tren. Se valorará
+la claridad de la especificación y la eficiencia de las operaciones
+*/
 
 //El vagon activo el de la derecha
 class Tren{
