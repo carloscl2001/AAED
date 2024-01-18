@@ -130,8 +130,14 @@ Tren::Tren():pI(Pila<tVagon>()), pD(Pila<tVagon>()){}
 
 template <typename tVagon>
 void Tren::desplazarIzqda(){
-    pI.push(pD.tope());
+
+    tVagon aux = pD.tope();
     pD.pop();
+    if(!pD.vacia()){
+        pI.push(aux);
+    }else{
+        push(aux);
+    }
 }
 
 template <typename tVagon>
@@ -495,15 +501,15 @@ class Texto{
 void Texto::MostrarTexto(){
     pos p = lienas.primera();
     while(p != lineas.fin()){
-        pos2 p2 = caracteres.primera()
-        while(p2 != lineas.elemento(p).caracteres.fin()){
+        pos2 p2 = caracteres.fin()
+        while(p2 != lineas.elemento(p).caracteres.primera()){
             if(lineas.elemento(p).caracteres.elemento(p2) == '@'){
-                lineas.elemento(p).caracteres.eliminar(lineas.elemento(p).caracteres.siguiente(p2));
+                lineas.elemento(p).caracteres.eliminar(lineas.elemento(p).caracteres.anterior(p2));
             }else if(lineas.elemento(p).caracteres.elemento(p2) == '#'){
                 Lista<char> l();
                 lineas.elemento(p).caracteres = l;
             }
-            p2 = lineas.elemento(p).caracteres.siguiente(p2)
+            p2 = lineas.elemento(p).caracteres.siguiente(p2);
         }
         p = lineas.siguiente(p);
     }
@@ -534,222 +540,86 @@ b) Realiza el TAD teniendo en cuenta lo siguiente:
 	- El tiempo de ejecución de cerrar una caja, cobrar una compra y susituir a un cajero debe de ser constante
 	- Justifica razonadamente la estructura de datos elegida en términos de eficiencia en tiempo y espacio*/
 
-struct caja{
-    int cajero;
-    double dia;
-    double turno;
-    double periodo;
-    bool activa;
-};
 
-class Hipermercado{
-    public:
-        Hipermercado();
-        void abrir(size_t num_caja, int num_cajero);
-        double cerrar(size_t num_caja);
-        void cobrar(size_t num_caja, double importe);
-        void sustituir(size_t num_caja, int num_cajero);
-        double turno();
-        double cierre();
-        ~Hipermercado(){};
-    private:
-        caja cajas[50];
-};
-
-Hipermercado::Hipermercado(){
-    caja c;
-    c.cajero = 0;
-    c.dia = 0.0;
-    c.turno = 0.0;
-    c.periodo = 0.0;
-    c.activa = false;
-    for(size_t i = 0; i < 50; i++){
-        cajas[i] = c;
-    }
-}
-
-void Hipermercado::abrir(size_t num_caja, int num_cajero){
-    assert(num_caja < 50);
-    assert(!cajas[num_caja].activa);
-
-    cajas[num_caja].activa = true;
-    cajas[num_caja].cajero = num_cajero;
-}
-
-double Hipermercado::cerrar(size_t num_caja){
-    assert(num_caja < 50);
-    assert(cajas[num_caja].activa);
-
-    cajas[num_caja].activa = false;
-    cajas[num_caja].turno += cajas[num_caja].periodo;
-    double aux = cajas[num_caja].periodo;
-    cajas[num_caja].periodo = 0.0;
-
-    return aux;
-}
-
-void Hipermercado::cobrar(size_t num_caja, double importe){
-    assert(num_caja < 50);
-    assert(cajas[num_caja].activa);
-
-    cajas[num_caja].periodo+= importe;
-}
-
-void Hipermercado::sustituir(size_t num_caja, int num_cajero){
-    assert(num_caja < 50);
-    assert(cajas[num_caja].activa);
-
-    cajas[num_caja].cajero = num_cajero;
-}
-
-double Hipermercado::turno(){
-    double dinero_turno = 0.0;
-    for(size_t i = 0; i < 50; i++){
-        //Cierro las cajas
-        cajas[i].activa = false;
-        cajas[i].turno += cajas[num_caja].periodo;
-        cajas[i].periodo = 0.0;
-
-        //Guardo la suma de los turnos de cada caja
-        dinero_turno += cajas[i].turno;  
-
-        //Reinicio el turno de las cajas
-        cajas[i].dia += cajas[i].turno;
-        cajas[i].turno = 0.0;
-    }
-    return dinero_turno;
-}
-
-double Hipermercado::cierre(){
-    double dinero_dia = 0.0;
-
-    for(size_t i = 0; i < 50; i++){
-        //Cierro las cajas
-        cajas[i].activa = false;
-        cajas[i].turno += cajas[num_caja].periodo;
-        cajas[i].periodo = 0.0; 
-
-        //Reinicio el turno de las cajas
-        cajas[i].dia += cajas[i].turno;
-        cajas[i].turno = 0.0;
-
-        //Guardo la suma del dinero del dia de todas las cajas
-        dinero_dia += cajas[i].dia;
-
-        //Reinicio el dia
-        cajas[i].dia = 0.0;
-    }
-    return dinero_dia;
-}
 
 //TAD SIMBOLO------------------------------------------------------------------------------------------------------------------------------------------------------------
-/*Especificacion:*/
-/*Simbolo():
-	·Precondicion:-------.
-	·Postcondicion:Crea un Simbolo vacio.
-*/
-/*void anadirTrazo(const Trazos& T):
-	·Precondicion:-------.
-	·Postcondicion:Anade el trazo al simbolo.
-*/
-/*void eliminarTrazos(size_t n):
-	·Precondicion:EL numero de trazos es <=n.
-	·Postcondicion:Elimina los ultimos n trazos del simbolo.
-*/
-/*void simetricoX():
-	·Precondicion:-------.
-	·Postcondicion:Devuelve el Simbolo simetrico por X.
-*/
-/*void simetricoY():
-	·Precondicion:-------.
-	·Postcondicion:Devuelve el Simbolo simetrico por Y.
-*/
-/*void simetricoXY():
-	·Precondicion:-------.
-	·Postcondicion:Devuelve el Simbolo simetrico por XY.
-*/
-
+/*El TAD símbolo se usa para representar símbolos trazados con líneas rectas. Un símbolo es una sucesión de
+Trazos, un trazo es una línea recta con sentido arriba, abajo, izquierda y derecha. El TAD símbolo se tiene
+que permitir realizar las siguientes operaciones:
+- Crear un símbolo vacío.
+- Añadir un trazo al final de un símbolo.
+- Deshacer los últimos n trazos.
+- Devolver símbolo con simetría X (Volteado Vertical)
+- Devolver símbolo con simetría Y (Volteado Horizontal)
+- Devolver símbolo con simetría XY
+a) Realice la especificación del TAD
+b) Diseñe una estructura de datos adecuada para representar el TAD e implemente las operaciones
+anteriores.
+NOTA: Es absolutamente necesario definir todos los tipos de datos implicados en la resolución del ejercicio,
+así como los prototipos de las operaciones utilizadas de los TADs conocidos.*/
+//a)Especificaion
 class Simbolo{
     public:
-        Simbolo(){};
-        void anadirTrazo(char letra);
-        void eliminarTrazos(size_t n);
-        Lista<char> simetricoX();
-        Lista<char> simetricoY();
-        Lista<char> simetricoXY();
-        ~Simetrico(){};
+        Simbolo();
+        void anadirTrazo(char t);
+        void deshacerTrazos(size_t N);
+        void simetriaX();
+        void simetriaXY();
+        void simetriaY();
+
     private:
-        Lista<char> simbolos;
-        typedef typename Lista<char>::posicion p
+        Lista<char> lista;
+        Lista<char>::posicion pos;
 };
 
-void Simbolo::anadirTrazo(char letra){
-    simbolos.insertar(letra, simbolos.fin());
+Simbolo::Simbolo():lista(Lista<char>()){}
+
+void Simbolo::anadirTrazo(char t){
+    lista.insertar(t, lista.fin());
 }
 
-void Simbolo::eliminarTrazos(size_t n){
-    for(size_t i = 0; i < n; i++){
-        simbolos.eliminar(simbolos.anterior(simbolos.fin()));
+void Simbolo::deshacerTrazos(size_t N){
+    for(int i = 0; i < N; i++){
+        lista.eliminar(lista.anterior(lista.fin()));
     }
 }
 
-Lista<char> Simbolo::simetricoX(){
-    Lista<char> simetrica;
-    p px = simbolos.primera();
-    while(px != simbolos.fin()){
-        if(simbolos.elemento(px) == 'S'){
-            simetrica.insertar('B', simetrica.fin());
+void Simbolo::simetriaX(){
+    for(pos p = lista.primera(); p != lista.fin(); p = lista.siguiente(p)){
+        char aux = lista.elemento(p);
+        if(aux == 'A'){
+            lista.elemento(p) = 'B';
+        }else if(aux == 'B'){
+            lista.elemento(p) = 'A';
         }
-        else if(simbolos.elemento(px) == 'B'){
-            simetrica.insertar('S', simetrica.fin());
-        }
-        else{
-            simetrica.insertar(simbolos.elemento(px), simetrica.fin());
-        }
-        px = simbolos.siguiente(px);
     }
-    return simetrica;
 }
 
-Lista<char> Simbolo::simetricoY(){
-    Lista<char> simetrica;
-    p px = simbolos.primera();
-    while(px != simbolos.fin()){
-        if(simbolos.elemento(px) == 'I'){
-            simetrica.insertar('D', simetrica.fin());
+void Simbolo::simetriaY(){
+    for(pos p = lista.primera(); p != lista.fin(); p = lista.siguiente(p)){
+        char aux = lista.elemento(p);
+        if(aux == 'I'){
+            lista.elemento(p) = 'D';
+        }else if(aux == 'D'){
+            lista.elemento(p) = 'I';
         }
-        else if(simbolos.elemento(px) == 'D'){
-            simetrica.insertar('I', simetrica.fin());
-        }
-        else{
-            simetrica.insertar(simbolos.elemento(px), simetrica.fin());
-        }
-        px = simbolos.siguiente(px);
     }
-    return simetrica;
 }
 
-Lista<char> Simbolo::simetricoXY(){
-    Lista<char> simetrica;
-    p px = simbolos.primera();
-    
-    while(px != simbolos.fin()){
-        if(simbolos.elemento(px) == 'I'){
-            simetrica.insertar('D', simetrica.fin());
-        }
-        else if(simbolos.elemento(px) == 'D'){
-            simetrica.insertar('I', simetrica.fin());
-        }
-        else if(simbolos.elemento(px) == 'S'){
-            simetrica.insertar('B', simetrica.fin());
-        }
-        else if(simbolos.elemento(px) == 'B'){
-            simetrica.insertar('S', simetrica.fin());
-        }
-        px = simbolos.siguiente(px);
-    }
 
-    return simetrica;
+void Simbolo::simetriaXY(){
+    for(pos p = lista.primera(); p != lista.fin(); p = lista.siguiente(p)){
+        char aux = lista.elemento(p);
+        if(aux == 'A'){
+            lista.elemento(p) = 'B';
+        }else if(aux == 'B'){
+            lista.elemento(p) = 'A';
+        }else if(aux == 'I'){
+            lista.elemento(p) = 'D';
+        }else if(aux == 'D'){
+            lista.elemento(p) = 'I';
+        }
+    }
 }
 
 //TAD CARTELERAS--------------------------------------------------------------------------------------------------------------------------------------------------------
