@@ -1016,11 +1016,12 @@ pos Averia::busquedaPosId(string id){
 
 void Averia::anadirVuelo(string idVuelo, string horaSalida, size_t numReservasMax){
  
-    if(!comprobarVuelo(idVuelo)){
-        pos p = busquedaPos(horaSalida);
-        vuelo v(idVuelo, horaSalida, numReservasMax);
-        vuelos.insertar(v,p);
-    }
+    assert(!comprobarVuelo(idVuelo));
+    aasert(numReservasMax > 0 );
+    pos p = busquedaPos(horaSalida);
+    vuelo v(idVuelo, horaSalida, numReservasMax);
+    vuelos.insertar(v,p);
+    
 }
 
 void Averia::registrarReserva(string idVuelo, string idPasajero){
