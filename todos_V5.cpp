@@ -6,7 +6,7 @@
 
 using namespace std;
 
-#include <string.h>
+#include <string>
 
 //-----------------------------------APUNTES DE TEORIA------------------------------------------------------------------------------------------------------------------
 //Pilas con bicolas
@@ -633,94 +633,113 @@ void Simbolo::simetriaXY(){
         - Eliminar un espectáculo de una sala (el sistema no se modifica si la sala no existía o sí existía pero no ofrecía ese espectáculo).
         - Consultar las salas.
         - Consultar los espectáculos de una sala.*/
-
+//b) y a)
 struct sala{
-    int id;
-    Lista<int> Espectaculos;
+    string id;
+    Lista<string> espectaculos;
+    sala(string idSala):id(idSala), espectaculos(Lista<string>()){}
 };
 
 class Cartelera{
     public:
-        Cartelera(){};
-        void anadir_sala(int sal);
-        void anadir_espectaculo(int sal, int espectaculo);
-        void eliminar_sala(int sal);
-        void eliminar_espectaculo(int sal, int espectaculo);
-        const Lista<Sala>& mostrar_salas() const noexcept;
-        const Lista<Espectaculo>& mostrar_espectaculos(size_t sal) const noexcept;
-        ~Cartelera(){};
+        Cartelera():salas(Lista<sala>()){}
+        void anadirSala(string idSala);
+        void anadirEspectaculo(string idSala, string idEspectaculo);
+        void eliminarSala(string idSala);
+        void eliminarEspectaculo(string idSala, string idEspectaculo);
+        Lista<sala> consultarSalas() const;
+        Lista<string> consultarEspectaculos(string idSala) const;
     private:
         Lista<sala> salas;
-        Lista<sala>::posicion p;
-        p buscar(int sal);
-        p buscar_espectaculo(int sal, int espec);
+        typedef typename Lista<sala>::posicion posSala;
+        typedef typename Lista<string>::posicion posEspectaculo;
+        posSala busquedaSala(string idSala);
+        posEspectaculo busquedaEspectaculo(posSala p, string idEspectaculo);
 };
 
-Cartelera::p Cartelera::buscar(int sal){
-    p pos = salas.primera();
-    while(pos != salas.fin()){
-        if(salas.elemento(pos).id == sal){
-            return pos;
+Cartelera::posSala Cartelera::busquedaSala(string idSala){
+    posSala p = salas.primera();
+    while(p != salas.fin()){
+        if(salas.elemento(p).id >= idSala)
+            return p;
+        else
+            p = salas.siguiente(p);
+    }
+    return p;
+}
+
+Cartelera::posEspectaculo Cartelera::busquedaEspectaculo(posSala p, string idEspectaculo){
+    if(p != salas.fin()){
+        posEspectaculo p2 = salas.elemento(p).espectaculos.primera();
+        while(p2 != salas.elemento(p).espectaculos.fin()){
+            if(salas.elemento(p).espectaculos.elemento(p2) >= idEspectaculo)
+                return p2;
+            else
+                p2 = salas.elemento(p).espectaculos.siguiente(p2);
+        }
+        return p2;
+    }
+}
+
+
+
+//pre: sala no se encuentre en la cartelera
+void Cartelera::anadirSala(string idSala){
+    sala s(idSala);
+    posSala p = busquedaSala(idSala);
+    //no existe
+    if(p == salas.fin())
+        salas.insertar(s,p);
+    else if(salas.elemento(p).id != idSala)
+        salas.insertar(s,p);
+    
+}
+
+void Cartelera::anadirEspectaculo(string idSala, string idEspectaculo){
+    posSala p = busquedaSala(idSala);
+    if(p != salas.fin() && salas.elemento(p).id == idSala){
+        posEspectaculo p2 = busquedaEspectaculo(p, idEspectaculo);
+        //existe sala y no especatculo
+        if(p2 != salas.elemento(p).espectaculos.fin() && salas.elemento(p).espectaculos.elemento(p2) != idEspectaculo){
+            salas.elemento(p).espectaculos.insertar(idEspectaculo, p2);
+        }else{
+            salas.elemento(p).espectaculos.insertar(idEspectaculo, p2);
         }
     }
-    return pos;
 }
 
-Cartelera::p Cartelera::buscar_espectaculo(int sal, int espec){
-    p pos = buscar(sal);
-    p pos_espec = salas.elemento(pos).Espectaculos.primera();
-    while(pos_espec != salas.elemento(pos).Espectaculos.fin()){
-        if(salas.elemento(pos).Espectaculos.elemento(pos_espec) == espec){
-            return pos_espec;
-        }
+
+void Cartelera::eliminarSala(string idSala){
+    posSala p = busquedaSala(idSala);
+    if(p != salas.fin() && salas.elemento(p).id == idSala){
+        salas.eliminar(p);
     }
-    return pos_espec;
 }
 
-void Cartelera::anadir_sala(int sal){
-    assert(buscar(sal) == salas.fin());
-
-    sala s;
-    s.id = sal;
-
-    salas.insertar(s, salas.fin());
+void Cartelera::eliminarEspectaculo(string idSala, string idEspectaculo){
+    posSala p = busquedaSala(idSala);
+    if(p != salas.fin() && salas.elemento(p).id == idSala){
+        posEspectaculo p2 = busquedaEspectaculo(p,idEspectaculo);
+        if(p2 != salas.elemento(p).espectaculos.fin() && salas.elemento(p).espectaculos.elemento(p2) == idEspectaculo)
+            salas.elemento(p).espectaculos.eliminar(p2);
+    }
 }
 
-void Cartelera::anadir_espectaculo(int sal, int espectaculo){
-    p posicion_sala = buscar(sal);
-    assert(posicion_sala != salas.fin());
-    assert(buscar_espectaculo(sal, espectaculo) == salas.elemento(posicion_sala).Espectaculos.fin());
-
-    salas.elemento(posicion_sala).Espectaculos.insertar(espectaculo, salas.elemento(posicion_sala).Espectaculos.fin())
-}
-
-void Cartelera::eliminar_sala(int sal){
-    p posicion_sala = buscar(sal);
-    assert(posicion_sala != salas.fin());
-
-    salas.eliminar(posicion_sala);
-}
-
-void Cartelera::eliminar_espectaculo(int sal, int espectaculo){
-    p posicion_sala = buscar(sal);
-    assert(posicion_sala != salas.fin());
-
-    p posicion_espectaculo = buscar(sal, espectaculo);
-    assert(posicion_espectaculo != salas.elemento(posicion_sala).Espectaculos.fin());
-
-    salas.elemento(posicion_sala).Espectaculos.eliminar(posicion_espectaculo);
-}
-
-const Lista<Sala>& mostrar_salas() const noexcept{
+Lista<sala> Cartelera::consultarSalas() const{
     return salas;
 }
 
-const Lista<Espectaculo>& mostrar_espectaculos(size_t sal) const noexcept{
-    p posicion_sala = buscar(sal);
-    assert(posicion_sala != salas.fin());
 
-    return salas.elemento(posicion_sala).Espectaculos;
+Lista<string> Cartelera::consultarEspectaculos(string idSala) const{
+    posSala p = busquedaSala(idSala);
+    if(p != salas.fin() && salas.elemento(p).id == idSala){
+        return salas.elemento(p).espectaculos;
+    }
 }
+
+
+
+
 
 //TAD COCINA------------------------------------------------------------------------------------------------------------------------------------------------------------
 // Una empresa de muebles de cocina necesita un TAD para representar el conjunto de muebles
@@ -736,116 +755,6 @@ const Lista<Espectaculo>& mostrar_espectaculos(size_t sal) const noexcept{
 // - mover el mueble inesimo de la cocina si existe hacia la izquierda hasta que se junte con el mueble i-1 esimo o el extremo izquierdo
 //de la pared
 //- destruir la cocina
-struct mueble{
-    int posicion;
-    int anchura;
-};
-
-class Cocina{
-    public:
-        Cocina(int longitud);
-        bool colocar(int pos, int anch) const;
-        void anadir(int pos, int anch);
-        mueble inesimo_mue(int n) const;
-        void eliminar(int n);
-        void mover(int n);
-        ~Cocina(){};
-    private:
-        int longi;
-        Lista<mueble> muebles;
-        typedef typename Lista<mueble>::posicion p;
-};
-
-Cocina::Cocina(int longitud):longi(longitud), muebles(Lista<mueble>(longitud)){}
-
-bool Cocina::colocar(int pos, int anch) const{
-    if(pos > longi || pos < 0 || pos - anch < 0){
-        return false;
-    }
-    else{
-        p pp = muebles.primera();
-
-        while(pp != muebles.fin()){
-            if(muebles.elemento(pp).posicion > pos > muebles.elemento(muebles.siguiente(pp)).posicion){
-                if(muebles.elemento(pp).posicion - muebles.elemento(pp).anchura >= pos){
-                    if(pos - anch >= muebles.elemento(muebles.siguiente(pp)).posicon){
-                        return true;
-                    }
-                    else{
-                        return false;
-                    }
-                }
-                else{
-                    return false;
-                }
-            }
-            else{
-                return false;
-            }
-
-            pp = muebles.siguiente(pp);
-        }
-
-        return true;
-    }
-}
-
-void Cocina::anadir(int pos, int anch){
-    assert(colocar(pos, anch));
-
-    p pp = muebles.primera();
-
-    while(pp != muebles.fin()){
-        if(pos > muebles.elemento(pp).posicion){
-            mueble m;
-            m.posicion = pos;
-            m.anchura = anch;
-            muebles.insertar(m, pp);
-        }
-        pp = muebles.siguiente(pp);
-    }
-}
-
-mueble Cocina::inesimo_mue(int n) const{
-    p pp = muebles.primera();
-    int cont = 0;
-
-    while(pp != muebles.fin() && cont != n){
-        pp = muebles.siguiente(pp);
-        cont++;
-    }
-    if(cont == n){
-        return muebles.elemento(pp);
-    }
-}
-
-void Cocina::eliminar(int n){
-    p pp = muebles.primera();
-    int cont = 0;
-    while(pp != muebles.fin() && cont != n){
-        pp = muebles.siguiente(pp);
-        cont++;
-    }
-    if(cont == n){
-        muebles.elemento(pp);
-    }
-}
-
-void Cocina::mover(int n){
-    p pp = muebles.primera();
-    int cont = 1;
-    while(pp != muebles.fin() && cont != n){
-        pp = muebles.siguiente(pp);
-        cont++;
-    }
-    if(cont == n){
-        if(pp = muebles.primera()){
-            muebles.elemento(pp).posicion = longi;
-        }else{
-            muebles.elemento(pp).posicion = muebles.elemento(muebles.anterior(pp)).posicion - muebles.elemento(muebles.anterior(pp)).anchura;
-        }
-    }
-}
 
 
 //TAD ESCALONADA---------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -865,115 +774,19 @@ void Cocina::mover(int n){
 // - hacer una traslacion de una funcion w unidades horizontales y z unidades verticales , siendo w y z ->R
 // - destruir una funcion
 
-struct salto{
-    double xi, yi;
-    punto(double x, double y):xi(x), yi(y){}
-};
 
-class Escalonada{
-    public:
-        Escalonada(double coordx, double coordy);
-        void anadir_salto(double coordx, double coordy);
-        void eliminar_salto(double coordx);
-        double valorpunto(double coordx) const;
-        double valorminimo() const;
-        double valormax() const;
-        void traslacion(double fx, double fy);
-        ~Escalonada(){};
-    private:
-        Lista<salto> funcion;
-        typedef typename Lista<salto>::posicion pos;
-};
+#include "pila_enlazada.hpp" //Pila estatica
 
-Escalonada::Escalonada(double coordx, double coordy){
-    salto p(coordx, coordy);
-    funcion.insertar(p, funcion.fin());
-}
+#include "cola.cpp"//Cola pseudo
 
-void Escalonada::anadir_salto(double coordx, double coordy){
-    pos pf = funcion.primera();
-    salto p(coordx, coordy);
-    bool insertado = false;
+#include "lista_doble.h"
 
-    while(pf != funcion.fin() && !insertado){
-        if(coordx == funcion.elemento(pf).xi){
-            funcion.elemento(pf).yi = coordy;
-            insertado = true;
-        }
-        else if(coordx < funcion.elemento(pf).xi){
-            funcion.insertar(p, pf);
-            insertado = true;
-        }
+using namespace std;
 
-        pf = funcion.siguiente(pf);
-    }
-    if(pf == funcion.fin()){
-        funcion.insertar(p, pf);
-    }
-}
+#include <string>
 
-void Escalonada::eliminar_salto(double coordx){
-    pos pf = funcion.primera();
-    bool eliminado = false;
 
-    while(pf != funcion.fin() && !eliminado){
-        if(funcion.elemento(pf).xi == coordx){
-            funcion.eliminar(pf);
-            eliminado = true;
-        }
-        pf = funcion.siguiente(pf);
-    }
-}
-
-double Escalonada::valorpunto(double coordx) const{
-    pos pf = funcion.primera();
-
-    while(pf != funcion.fin() && !eliminado){
-        if(funcion.elemento(pf).xi == coordx){
-            return funcion.elemento(pf).yi;
-        }
-        pf = funcion.siguiente(pf);
-    }
-}
-
-double Escalonada::valorminimo() const{
-    pos pf = funcion.primera();
-    double minimo = funcion.elemento(pf).yi;
-
-    while(pf != funcion.fin()){
-        if(funcion.elemento(pf).yi < minimo){
-            minimo = funcion.elemento(pf).yi;
-        }
-        pf = funcion.siguiente(pf);
-    }
-
-    return minimo;
-}
-
-double Escalonada::valormax() const{
-    pos pf = funcion.primera();
-    double maximo = funcion.elemento(pf).yi;
-
-    while(pf != funcion.fin()){
-        if(funcion.elemento(pf).yi > maximo){
-            maximo = funcion.elemento(pf).yi;
-        }
-        pf = funcion.siguiente(pf);
-    }
-
-    return maximo;
-}
-
-void Escalonada::traslacion(double fx, double fy){
-     pos pf = funcion.primera();
-
-     while(pf != funcion.fin()){
-        funcion.elemento(pf).xi += fx;
-        funcion.elemento(pf).yi += fy;
-        pf = funcion.siguiente(pf);
-    }
-}
-
+//TAD RADIO
 /*Una emisora de radio en línea quiere automatizar la gestión de las listas de reproducción. Por este motivo decide organizar las canciones 
 de que dispone en una estructura de datos. Los directivos de la emisora deciden que se necesitan las siguientes operaciones para programar la 
 música a emitir:
@@ -986,106 +799,121 @@ música a emitir:
 El número de canciones de que dispone la radio es conocido, pero también sabemos quecada semana la emisora adquiere nuevas canciones y las añade 
 al archivo. Para cada canciónse almacena un número que la identifica y su duración en segundos. La empresa os pide quedefináis el TAD radio y que 
 lo implementéis de manera que todas las operaciones tengan elmínimo coste temporal posible*/
-
 struct cancion{
-    int duracion, n;
     string nombre;
-    cancion(int nombre_, int duracion_, int n_= 0):nombre(nombre_), duracion(duracion_){}
+    size_t duracion;
+    size_t veces;
+    cancion(string n, size_t d, size_t v = 0):nombre(n), duracion(d), veces(v){}
 };
 
 class Radio{
     public:
         Radio();
-        void anadir_cancion(string nom, int dur);
-        cancion devuelve_cancion_menos_emitida(int tiempo) const;
-        cancion devuelve_cancion_mas_emitida(int tiempo) const;
-        void emitir_canción(string nom);
-        void borrar_n_canciones(int n);
-        ~Radio(){};
+        void anadirCancion(string nombre, size_t duracion);
+        string sugerir(size_t duracion);
+        string seleccionar(size_t duracion);
+        void emitir(string nombre);
+        void borrar(size_t n);
 
     private:
         Lista<cancion> canciones;
-        typedef typename Lista<cancion>::posicion p;
+        typedef typename Lista<cancion>::posicion pos;
+        bool buscar(string nombre);
+        pos buscar(size_t veces);
 };
 
-Radio::Radio(){}
-
-void Radio::anadir_cancion(string nom, int dur){
-    cancion c(nom, dur);
-    canciones.insertar(c, canciones.fin());
-}
-
-cancion Radio::devuelve_cancion_menos_emitida(int tiempo) const{
-    p paux = canciones.primera();
-    p pc = canciones.primera();
-    int repetida = canciones.elemento(pc).n;
-    int rep = 0;
-
-    while(pc != canciones.fin()){
-        if(canciones.elemento(pc).duracion == tiempo){
-            rep = canciones.elemento(pc).n;
-            if(canciones.elemento(pc).n < repetida){
-                repetida = canciones.elemento(pc).n;
-                paux=pc;
-            }
+bool Radio::buscar(string nombre){
+    pos p = canciones.primera();
+    while(p != canciones.fin()){
+        if(nombre == canciones.elemento(p).nombre){
+            return true;
         }
-        pc = canciones.siguiente(pc);
     }
+    return false;
 }
 
-cancion Radio::devuelve_cancion_mas_emitida(int tiempo) const{
-    p pc = canciones.primera();
-    p paux = canciones.primera();
-    int repe = 0;
-
-    while(pc != canciones.fin()){
-        if(canciones.elemento(pc).duracion == tiempo && canciones.elemento(pc).n > repe){
-            repe = canciones.elemento(pc).n;
-            paux = pc;
+Radio::pos Radio::buscar(size_t veces){
+    pos p = canciones.primera();
+    while(p != canciones.fin()){
+        if(veces >= canciones.elemento(p).veces){
+            return p;
+        }else{
+            p = canciones.siguiente(p);
         }
-        pc = canciones.siguiente(pc);
+    }
+    return p;
+}
+
+//pre -> si existe la cancion no se añade
+void Radio::anadirCancion(string nombre, size_t duracion){
+    //no existe 
+    if(!buscar(nombre)){
+        cancion c(nombre, duracion);
+        canciones.insertar(c, canciones.primera());
     }
 
-    return canciones.elemento(paux);
 }
 
-void Radio::emitir_canción(string nom){
-    p pc = canciones.primera();
-    bool aux = false;
-
-    while(pc != canciones.fin() && !aux){
-        if(canciones.elemento(pc).nombre == nom){
-            canciones.elemento(pc).n++;
-            aux = true;
+//pre -> existe una cancion con la duracion dada
+string Radio::sugerir(size_t duracion){
+    pos p = canciones.primera();
+    while(p != canciones.fin()){
+        if(duracion != canciones.elemento(p).duracion){
+            p = canciones.siguiente(p);
+        }else{
+            p = canciones.fin();
         }
-        pc = canciones.siguiente(pc);
-    }
-}
-
-void Radio::borrar_n_canciones(int n){ 
-    int cont = 0;
-
-    while(cont < n){
-
-        p pc = canciones.primera();
-        p paux =canciones.primera();
-        int repeticiones = canciones.elemento(pc).n;
-
-
-        while(pc != canciones.fin()){
-            if(canciones.elemento(pc).n < repeticiones){
-                repeticiones = canciones.elemento(pc).n;
-                paux = pc;
-            }
-            pc = canciones.siguiente(pc);
-        }
-        canciones.eliminar(paux);
-
-        cont++;
         
     }
-
+    assert(p != canciones.fin());
+    return canciones.elemento(p).nombre;
 }
+
+string seleccionar(size_t duracion){
+    bool encontrado = false;
+    pos p = canciones.anterior(canciones.fin());
+    while(!encontrado && p != canciones.primera()){
+        if(duracion == canciones.elemento(p).duracion){
+            encontrado = true;
+        }else{
+            p = canciones.anterior(p);
+        }
+    }
+    if(!encontrado && duracion != canciones.elemento(p).duracion){
+        encontrado = true;
+    }
+    assert(encontrado);
+    return canciones.elemento(p).nombre;
+}
+
+
+void emitir(string nombre){
+    //existe la cancion
+    cancion c(nombre);
+    pos p = canciones.primera();
+    while(p != canciones.fin()){
+        if(canciones.elemento(p).nombre == nombre){
+            c.duracion  = canciones.elemento(p).duracion;
+            c.veces = canciones.elemento(p).veces+1;
+            canciones.eliminar(p);
+            break;
+        }
+        p = canciones.siguiente(p);
+    }
+    pos p = buscar(c.veces);
+    canciones.insertar(c,p);
+}
+
+void Radio::borrar(size_t n){
+    assert(n <= canciones.tama());
+
+    for(int i = 0 ; i < n ; i++){
+        canciones.eliminar(canciones.primera());
+    }
+}
+
+
+
 //TAD GESTOR IMPRESION-----------------------------------------------------------------------------------------------------------------------------------------------
 //En una oficina tienen una impresora que sirve a distintos usuarios, cada uno de los cuales puede 
 //enviar a la misma dos clases de trabajos, urgentes y no urgentes. Los trabajos de la misma clase
@@ -1107,3 +935,20 @@ void Radio::borrar_n_canciones(int n){
 
 
 //TAD AVERIA--------------------------------------------------------------------------------------------------------------------------------------------------------
+//FALTA ENUNCIADO
+
+
+
+
+//TAD ALMACEN
+/*Una empresa ha robotizado su almacén. Para ello lo ha dividido en 60 estantes de tres tamaños diferentes (pequeño, mediano y grande) 
+a partes iguales. A cada estante se le asigna un elemento según su tamaño (en cada estante solo hay elementos de un tipo, pero puede 
+haber hasta 50 elementos del mismo tipo).
+Se pide diseñar un TAD para el funcionamiento del robot que incluya las siguientes operaciones:
+    1. Crear un almacén vacío.
+    2. Insertar un elemento en un estante. Si ya hay un estante asignado, y el elemento cabe, se coloca en ese. Si no es así, 
+    se busca otro estante del mismo tamaño. Si no hay, se devuelve False. Si se puede colocar se devuelve True.
+    3. Comprobar si hay elementos de un tipo determinado.
+    4. Sacar un elemento de un tipo dado.
+    5. Vaciar el almacén (destructor del TAD).
+*/
