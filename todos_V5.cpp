@@ -979,7 +979,6 @@ class Averia{
     private:
         Lista<vuelo> vuelos;
         typedef typename Lista<vuelo>::posicion pos;
-
 }
 
 Averia::Averia(){}
