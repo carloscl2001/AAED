@@ -935,7 +935,151 @@ void Radio::borrar(size_t n){
 
 
 //TAD AVERIA--------------------------------------------------------------------------------------------------------------------------------------------------------
-//FALTA ENUNCIADO
+/*
+La compañia aerea Averias SA necesita un sistema de reservas con las siguientes operaciones:
+- crear un sistema de reservas vacio, sin informacion
+- añadir un nuevo vuelo al sistema de reservas
+- comprobar si un vuelo existe o no en el sistema
+- registrar una reserva para un pasajero en un vuelo existente con la condicion,
+    de que un mismo pasajero no mas de una reserva en el mismo vuelo.
+- comprobar si un vuelo ya no admite mas reservas
+- determinar el numero del asiento, que le asigna a un pasajero en un vuelo, suponiendo que tal asignacion se realiza por orden de reserva,
+    empezabndo por el uno, y devolviendo 0 para los pasajero sin reserva
+- calcular el numero de reservas que hay en un vuelo
+- anular un vuelo en un sistema de reserva, eliminando todas las posibles reservas que haya para ese vuelo
+- obtener una lista de todos los vuelos en orden de salida
+*/
+
+struct reserva{
+    string nombrePasajero;
+    string numAsiento;
+}
+
+struct vuelo{
+    string id;
+    string horaSalida;
+    string numMaxReservas;
+    Lista<reserva> reservas;
+    typedef typename::posicion pos2;
+    vuelo(string i, string h, string n):id(i),horaSalida(h),numMaxReservas(n){}
+}
+
+class Averia{
+    public: 
+        Averia();
+        void anadirVuelo(string idVuelo, string horaSalida, size_t numReservas);
+        bool comprobarVuelo(string idVuelo);
+        void registrarReserva(string idVuelo, string idPasajero);
+        bool comprobarMasReservas(string idVuelo);
+        string numAsientoPasajero(string idVuelo, string idPasajero);
+        size_t calculaNumReservas(string idVuelo);
+        void anularVuelo(string idVuelo);
+        Lista<vuelo> MostrarVuelos();
+
+    private:
+        Lista<vuelo> vuelos;
+        typedef typename Lista<vuelo>::posicion pos;
+
+}
+
+Averia::Averia(){}
+
+bool Averia::comprobarVuelo(string idVuelo){
+    if(busquedaPosId(idVuelo) == vuelos.fin())
+        return false;
+    else
+        return true;
+}
+
+pos Averia::busqueda(string horaSalida){
+    os p = vuelos.primera();
+    while(p != vuelos.fin()){
+        if(horaSalida <= vuelos.elemento(p).horaSalida)
+            return p;
+        else
+            p = vuelos.siguiente(p);
+    }
+    return p;
+}
+
+pos Averia::busquedaPosId(string id){
+    pos p = vuelos.primera();
+    while(p != vuelos.fin()){
+        if(id == vuelos.elemento(p).id)
+            return p;
+        else
+            p = vuelos.siguiente(p);
+    }
+    return p;
+}
+
+
+void Averia::anadirVuelo(string idVuelo, string horaSalida, size_t numReservasMax){
+ 
+    if(!comprobarVuelo(idVuelo)){
+        pos p = busquedaPos(horaSalida);
+        vuelo v(idVuelo, horaSalida, numReservasMax);
+        vuelos.insertar(v,p);
+    }
+}
+
+void Averia::registrarReserva(string idVuelo, string idPasajero){
+    assert(comprobarVuelo(idVuelo));
+    //el vuelo existe y obtenemso su posicion
+    pos p = busquedaPosId(idVuelo);
+    pos2 p2 = vuelos.elemento(p).reservas.primera();
+    bool reservaEncontrada = false;
+    while(p2 != vuelos.elemento(p).reservas.fin()){
+        if(vuelos.elemento(p).reservas.elemento(p2).nombrePasajero == idPasajero){
+            reservaEncontrada = true;
+        }
+        p2 = vuelos.elemento(p).reservas.siguiente(p2);
+    }
+
+    assert(!reservaEncontrada);
+    assert(comprobarMasReservas(idVuelo));
+    reserva r(nombrePasajero, vuelos.elemento(p).reservas.tam()+1);
+    vuelos.elemento(p).reservas.insertar(r,p2);
+}
+
+bool comprobarMasReservas(string idVuelo){
+    assert(comprobarVuelo(idVuelo));
+    pos p = busquedaPosId(idVuelo);
+    if(vuelos.elemento(p).reservas.tama() < vuelos.elemento(p).numMaxReservas)
+        return true;
+    else
+        return false;
+}
+
+string numAsientoPasajero(string idVuelo, string idPasajero){
+    assert(comprobarVuelo(idVuelo));
+    pos p = busquedaPosId(idVuelo);
+    pos2 p2 = vuelos.elemento(p).reservas.primera();
+    while(p2 != vuelos.elemento(p).reservas.fin()){
+        if(vuelos.elemento(p).reservas.elemento(p2).nombrePasajero == idPasajero){
+            return vuelos.elemento(p).reservas.elemento(p2).numAsiento;
+        }
+        p2 = vuelos.elemento(p).reservas.elemento(p2).siguiente(p2);
+    }
+    return 0;
+}
+
+size_t calculaNumReservas(string idVuelo){
+    assert(comprobarVuelo(idVuelo));
+    pos p = busquedaPosId(idVuelo);
+    return vuelos.elemento(p).reservas.tama();
+}
+
+void anularVuelo(string idVuelo){
+    assert(comprobarVuelo(idVuelo));
+    pos p = busquedaPosId(idVuelo);
+    vuelos.eliminar(p);
+}
+
+
+Lista<vuelo> MostrarVuelos(){
+    return vuelos;
+}
 
 
 
