@@ -286,21 +286,13 @@ anteriores.
 NOTA: Es absolutamente necesario definir todos los tipos de datos implicados en la resolución del ejercicio,
 así como los prototipos de las operaciones utilizadas de los TADs conocidos.:*/
 //a) Especificacion
-    Consultorio();
-    //precondicion: medico no se encuentre en el consultorio
-    void darAlta(string idMedico);
-    //postcondicon: el medico forma parte del consultorio
-    void darBaja(string idMedico);
-    void ponerEspera(string idPaciente, string idMedico);
-    idPaciente consultarTurno(string idMedico);
-    void atender(string idMedico);
-    bool espera(string idMedico);
+   
 //b) Implementacion
 struct medico{
     string idMedico;
     Cola<string> cPacientes;
     medico(string s):idMedico(s), cPacientes(Cola<string>()){}
-}
+};
 
 class Consultorio{
     public:
@@ -308,15 +300,14 @@ class Consultorio{
         void darAlta(string idMedico);
         void darBaja(string idMedico);
         void ponerEspera(string idPaciente, string idMedico);
-        idPaciente consultarTurno(string idMedico);
+        string consultarTurno(string idMedico);
         void atender(string idMedico);
         bool espera(string idMedico);
     private:
         Lista<medico> lista;
         Lista<medico>::posicion pos;
         pos buscarMedico(string idMedico) const;
-
-}
+};
 
 //devuelve fin si no lo encuntra
 pos Consultorio::buscarMedico(string idMedico) const{
@@ -411,9 +402,131 @@ El objetivo es diseñar un tad con las siguientes operaciones:
 -	Pasar el token al siguiente
 -	Token: indica que computador tiene el token
 -	Enviar una trama concreta del computador A al computador B. Suponemos que trama es un tipo ya definido */
+struct ordenador{
+    string nombre;
+    trama t;
+    bool token;
+    ordenador(string s, trama t_, bool b = false):nombre(s), t(t_), token(b){} 
+};
+
+class TokenBus{
+    public:
+        TokenBus(string nombre, trama t);
+        void anadirComputador(string nombre, trama t);
+        void eliminarComputador();
+        void pasarSiguienteToken();
+        string consultarToken() const;
+        void enviarTrama(string n1, string n2);
+
+    private:
+        const size_t numMax = 25;
+        ListaCir<ordenador> computadores;
+        typedef typename ListaCir<ordenador>::posicion pos;
+        pos primer_computador;
+        bool existeComputador(string nombre);
+
+}
+bool TokenBus::existeComputador(string nombre){
+    pos p = computadores.inipos();
+    p = computadores.siguiente(p);
+    while( p != computadores.inipos()){
+        if(memcmp(computadores.elemento(p).nombre,nombre))
+            return true;
+        p = computadores.siguiente(p);
+    }
+    if(memcmp(computadores.elemento(p).nombre,nombre))
+        return true;
+    return false;
+}
 
 
+TokenBus::TokenBus(string nombre, trama t){
+    ordenador o(nombre, t,true);
+    computadores.insertar(o, computadores.inipos());
+    primer_computador = computadores.inipos();
+}
 
+void TokenBus::anadirComputador(string nombre, trama t){
+    assert(computadores.tama() < numMax);
+    assert(!existeComputador(nombre));
+    computador c(nombre, t);
+    computadores.insertar(computadores.anterior(primer_computador),c);
+}
+
+void TokenBus::eliminarComputador(){
+    assert(computadores.tama() > 0);
+    if(computadores.elemento(primer_computador).token){
+        pasarSiguienteToken();
+    }
+    pos p2 = computadores.siguiente(primer_computador);
+    computadores.eliminar(primer_computador);
+    primer_computador = p2;
+}
+
+void TokenBus::pasarSiguienteToken(){
+    assert(computadores.tama() > 1);
+
+    //busqueda del compu del token
+    pos p = computadores.inipos();
+    if(computadores.elemento(p).token){
+        pToken = p;
+    }else{
+        p = computadores.siguiente(p);
+        while( p != computadores.inipos()){
+            if(computadores.elemento(p).token){
+                pToken = p;
+                break;
+            }
+            p = computadores.siguiente(p);
+        }
+    }
+
+    //pasar el token
+    computadores.elemento(pToken).token = false;
+    computadores.elemento(computadores.siguiente(pToken)).token = true;
+}
+
+
+string consultarToken() const{
+    assert(computadores.tama() >= 1);
+
+    //busqueda del compu del token
+    pos p = computadores.inipos();
+    if(computadores.elemento(p).token){
+        return computadores.elemento(p).nombre;
+    }else{
+        p = computadores.siguiente(p);
+        while( p != computadores.inipos()){
+            if(computadores.elemento(p).token){
+                return computadores.elemento(p).nombre;
+            }
+            p = computadores.siguiente(p);
+        }
+    }
+}
+
+
+void enviarTrama(string n1, string n2){
+    assert(existeComputador(n1) && existeComputador(n2));
+    assert(computadores.tama() >= 2);
+
+    
+    pos pToken1, pToken2;
+
+    pos p = computadores.inipos();
+
+    do{
+        if(memcpm(computadores.elemento(p).nombre, n1)){
+            pToken1 = p;
+        }
+        if(memcpm(computadores.elemento(p).nombre, n2)){
+            pToken2 = p;
+        }
+        
+        
+    }while(p!= computadores.inipos())
+
+}
 
 //TAD CUBILETE----------------------------------------------------------------------------------------------------------------------------------------------------------
 /*Un conocido juguete está formado por una colección de cubiletes de diferentes tamaños que se
