@@ -10,6 +10,7 @@ using namespace std;
 
 //-----------------------------------APUNTES DE TEORIA------------------------------------------------------------------------------------------------------------------
 //Pilas con bicolas
+/*
 Bicola.push(elemento, izquierdo); 
 Bicola.pop(izquierdo);
 
@@ -25,6 +26,7 @@ while(p != Lista.inipos()){
 if(p == Lista.inipos()){
 
 }
+*/
 
 //FUNCIÓN INVERTIR-----------------------------------------------------------------------------------------------------------------------------------------------------
 //Escriba una función que dados dos elementos a y b y una pila, invierta la secuencia delimitada por ambos dentro de ella.
@@ -87,26 +89,10 @@ Pila<char> invertir(char a, char b, Pila<char> p){
 //definicion:
 //Un tren es una secuencia de elementos de tipo vagon de una longitud arbitraria
 //Hay un vagon activo por cada tren
-template <typename tVagon>
+
 //a) Especificacion 
     //El vagon activo se encuntar en el tope de la pila derecha
-    //cosntructor
-    Tren();
-
-    void desplazarIzqda();
-
-    void desplazarDrcha();
-
-    void eliminarVagonActivo();
-    
-    template <typename tVagon>
-    void insertarVagonActivo(tVagon v);
-
-    template <typename tVagon>
-    tVagon VagonVacio();
-
-    template <typename tVagon>
-    bool trenVacio();
+  
 
 
 //b) Implementacion
@@ -180,12 +166,7 @@ bool TrenVacio(){
 //eliminar una traduccion en español de una palabra en ingles
 //eliminar el diccionario
 //a) Especificacion
-    Diccionario();
-    void insertarEsIN(string pEs, string pIn);
-    bool correcta(string pEs, string pIn);
-    Lista<string> consultarIn(string pIn);
-    void eliminarTraduccionEs(string pEs, string pIn);
-    ~Diccionario();
+
 
 //b)Implementacion
 struct palabra{
@@ -953,7 +934,7 @@ La compañia aerea Averias SA necesita un sistema de reservas con las siguientes
 struct reserva{
     string nombrePasajero;
     string numAsiento;
-}
+};
 
 struct vuelo{
     string id;
@@ -962,7 +943,7 @@ struct vuelo{
     Lista<reserva> reservas;
     typedef typename::posicion pos2;
     vuelo(string i, string h, string n):id(i),horaSalida(h),numMaxReservas(n){}
-}
+};
 
 class Averia{
     public: 
