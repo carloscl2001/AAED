@@ -514,18 +514,22 @@ void enviarTrama(string n1, string n2){
     pos pToken1, pToken2;
 
     pos p = computadores.inipos();
-
+    size_t cont = 0;
     do{
         if(memcpm(computadores.elemento(p).nombre, n1)){
             pToken1 = p;
+            cont++;
         }
         if(memcpm(computadores.elemento(p).nombre, n2)){
             pToken2 = p;
+            cont++;
         }
-        
-        
-    }while(p!= computadores.inipos())
+        p = computadores.siguiente(p);
 
+        
+    }while(cont < 2 && p!= computadores.inipos() );
+
+    computadores.elemento(pToken2).t = computadores.elemento(pToken1).t;
 }
 
 //TAD CUBILETE----------------------------------------------------------------------------------------------------------------------------------------------------------
