@@ -637,6 +637,99 @@ b) Realiza el TAD teniendo en cuenta lo siguiente:
 	- El tiempo de ejecución de cerrar una caja, cobrar una compra y susituir a un cajero debe de ser constante
 	- Justifica razonadamente la estructura de datos elegida en términos de eficiencia en tiempo y espacio*/
 
+struct caja{
+    int idCajero;
+    double facturacionDesdeAbrir;
+    double facturacionCambioTurno;
+    double facturacionTotal;
+    bool abierta;
+    caja(int i = 0, double f1 = 0.0, double f2 = 0.0, double f3 = 0.0, bool b = false):idCajero(i),facturacionDesdeAbrir(f1), facturacionCambioTurno(f2), facturacionTotal(f3), abierta(b){}
+};
+
+class Hipermercado{
+    public:
+        Hipermercado();
+        void abirCaja(size_t i, int idCajero);
+        double cerrarCaja(size_t i);
+        void cobrarCliente(size_t i, double importe);
+        void sustituirCajero(size_t i, int idCajero);
+        double cambiarTurno();
+        double cerrarTodasCajas();
+    private:
+        caja vector[50];
+};
+
+Hipermercado::Hipermercado(){
+    for(size_t i = 0; i < 50 ; i++){
+        vector[i] = caja();
+    }
+}
+
+void Hipermercado::abrirCaja(size_t i, int idCajero){
+    assert(i < 50 && i >= 0 && !vector[i].abierta);
+    assert(idCajero > 0 && idCajero < 1000);
+    vector[i].abierta = true;
+    vector[i].idCajero = idCajero;
+}
+
+double Hipermercado::cerrarCaja(size_t i){
+   assert(i < 50 && i >= 0 && vector[i].abierta);
+   double dinero = vector[i].facturacionDesdeAbrir;
+
+   vector[i].abierta = false;
+   vector[i].idCajero = 0;
+   vector[i].facturacionCambioTurno += vector[i].facturacionDesdeAbrir;
+   vector[i].facturacionDesdeAbrir = 0;
+
+   return dinero;
+}
+
+
+void Hipermercado::cobrarCliente(size_t i, double importe){
+    assert(i < 50 && i >= 0 && !vector[i].abierta);
+    assert(importe > 0);
+
+    vector[i].facturacionDesdeAbrir += importe;
+}
+
+
+void Hipermercado::sustituirCajero(size_t i, int idCajero){
+    assert(i < 50 && i >= 0 && vector[i].abierta);
+    assert(idCajero > 0 && idCajero < 1000);
+
+    vector[i].idCajero = idCajero;
+}
+
+double Hipermercado::cambiarTurno(){
+    double dineroCajas = 0;
+
+    for(size_t i = 0; i < 50 ; i++){
+        if(vector[i].abierta()){
+            double dinero = cerrarCaja[i];
+            dineroCajas += vector[i].facturacionCambioTurno;
+            vector[i].facturacionTotal += vector[i].facturacionCambioTurno;
+            vector[i].facturacionCambioTurno = 0;
+        }
+    }
+    return dineroCajas;
+}
+
+double cerrarTodasCajas(){
+    double dineroCajas = 0;
+
+    for(size_t i = 0; i < 50 ; i++){
+        if(vector[i].abierta()){
+            double dinero = cerrarCaja[i];
+            vector[i].facturacionTotal += vector[i].facturacionCambioTurno;
+            dineroCajas += vector[i].facturacionTotal;
+            vector[i].facturacionCambioTurno = 0;
+            vector[i].facturacionTotal = 0;
+        }
+    }
+    return dineroCajas;
+}
+
+
 
 
 //TAD SIMBOLO------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -855,21 +948,25 @@ Lista<string> Cartelera::consultarEspectaculos(string idSala) const{
 
 
 //TAD ESCALONADA---------------------------------------------------------------------------------------------------------------------------------------------------------
-// Una funcion f: R-r Es escalonada cuando consiste en una sucesion de funciones constantes definidas
-//en subintervalos disjuntos y contiguos es decir f puede definirse mediante condiciones de la forma
-// f(x) = yi si xi es menor o igual que z y es menor que xi+1 donde los valores yi son distintos para subinervalos
-// adyacentes. Cada uno de los puntos (xi,yi) en lo que la funcion cambia de valor se llama salto o escalon
-// IMAGEN
-// Especificar un tad para las funciones escalonadas con un numero finito de saltos que incluya las sig operaciones
-// - crear una funcion constante f(x) = yi definida a partir de xi
-// - añadir un nuevo salto en el punto xi a una funcion, si ya existe un salto en las coordenadas x, se subsituye por el nuevo
-// - eliminar el escalon definido en el subintervalo al que pertenece la coordenada x, el escalor anterior al
-// eliminado se prolonga hasta el siguiente
-// - calcular el valor de una funcion en un punto dado
-// - calcular el valor minimo de una funcion escalonada
-// - calculo el valor máximo de una funcion escalonada
-// - hacer una traslacion de una funcion w unidades horizontales y z unidades verticales , siendo w y z ->R
-// - destruir una funcion
+/*Una función f:R->R es escalonada cuando consiste en una sucesión de funciones constantes definidas en
+subintervalos disjuntos y contiguos, es decir, f puede definirse mediante condiciones de la forma f(x)=yi, si
+x¡<=z<xi+1, donde los valores yi; son distintos para subintervalos adyacentes. Cada uno de los puntos (xi, yi)
+en los que la función cambia de valor se llama salto o escalón.
+(40%) Especificar un TAD para las funciones escalonadas con un numero finito de saltos, que incluya las
+siguientes operaciones:
+- Crear una función constante f(x)=yi, definida a partir de xi
+- Añadir un nuevo saltos en el punto (x,y) a una función. Si ya existe un salto en las coordenadas x, se
+sustituye por el nuevo.
+- Eliminar el escalón definido en el subintervalo al que pertenece la coordenada x. El escalón anterior al
+eliminado se prolonga hasta el siguiente.
+- Calcular el valor de una función en un punto dado.
+- Calcular el valor mínimo de una función escalonada
+- Calcular el valor máximo de una función escalonada
+- Hacer una translación de una función w unidades horizontales y z unidades verticales, siendo w y z
+números reales.
+- Destruir una función */
+class 
+
 
 
 
@@ -1196,7 +1293,7 @@ struct estante{
     size_t tipoTamanoEstanteria;
     size_t numMaximo = 50;
     size_t numActual;
-}
+};
 class Almacen{
     public:
         Almacen();
@@ -1206,19 +1303,19 @@ class Almacen{
         ~Almacen();
     private:
         estante estanterias[60];
-}
+};
 //pila -> pseudoestática
 Almacen::Alamacen(){
     for(size_t i = 0 ; i < 60 ; i++){
         if(i <= 19){
-            v[i].tipoTamanoEstanteria = 0;
+            estanterias[i].tipoTamanoEstanteria = 0;
         }else if(i <= 39 &&  i>= 20){
-            v[i].tipoTamanoEstanteria = 1;
+            estanterias[i].tipoTamanoEstanteria = 1;
             
         }else{
-            v[i].tipoTamanoEstanteria = 2;
+            estanterias[i].tipoTamanoEstanteria = 2;
         }
-        v[i].elementos.numActual = 0;
+        estanterias[i].numActual = 0;
     }
 }
 
