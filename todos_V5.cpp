@@ -510,7 +510,6 @@ void enviarTrama(string n1, string n2){
     assert(existeComputador(n1) && existeComputador(n2));
     assert(computadores.tama() >= 2);
 
-    
     pos pToken1, pToken2;
 
     pos p = computadores.inipos();
@@ -873,16 +872,6 @@ Lista<string> Cartelera::consultarEspectaculos(string idSala) const{
 // - destruir una funcion
 
 
-#include "pila_enlazada.hpp" //Pila estatica
-
-#include "cola.cpp"//Cola pseudo
-
-#include "lista_doble.h"
-
-using namespace std;
-
-#include <string>
-
 
 //TAD RADIO
 /*Una emisora de radio en línea quiere automatizar la gestión de las listas de reproducción. Por este motivo decide organizar las canciones 
@@ -1194,3 +1183,120 @@ Se pide diseñar un TAD para el funcionamiento del robot que incluya las siguien
     4. Sacar un elemento de un tipo dado.
     5. Vaciar el almacén (destructor del TAD).
 */
+
+//0 -> small
+//1 -> medium
+//2 -> big
+
+//0-19 => small
+//20-39 => medium
+//40-59 => big 
+
+struct estante{
+    size_t tipoTamanoEstanteria;
+    size_t numMaximo = 50;
+    size_t numActual;
+}
+class Almacen{
+    public:
+        Almacen();
+        bool insertarElementoEstante(size_t tamanoElemento);
+        bool comprobarElementoTamano(size_t tamanoElemento);
+        void sacarElemento(size_t tamanoElemento);
+        ~Almacen();
+    private:
+        estante estanterias[60];
+}
+//pila -> pseudoestática
+Almacen::Alamacen(){
+    for(size_t i = 0 ; i < 60 ; i++){
+        if(i <= 19){
+            v[i].tipoTamanoEstanteria = 0;
+        }else if(i <= 39 &&  i>= 20){
+            v[i].tipoTamanoEstanteria = 1;
+            
+        }else{
+            v[i].tipoTamanoEstanteria = 2;
+        }
+        v[i].elementos.numActual = 0;
+    }
+}
+
+
+bool Almacen::insertarElementoEstante(size_t tamanoElemento){
+    bool sePuede = false;
+    size_t rango1 = 0;
+    size_t rango2 = 0;
+
+    if(tamanoElemento == 0){
+        rango2 = 19;
+    }else if(tamanoElemento == 1){
+        rango1 = 20;
+        rango2 = 39;
+
+    }else if(tamanoElemento == 2){
+        rango1 = 40;
+        rango2 = 59;
+    }
+    while(rango1 <= rango2 && !sePuede){
+        if(estanterias[rango1].numActual < estanterias[rango1].numMax){
+            estanterias[rango1].numActual++;
+            sePuede = true;
+            return sePuede;
+        }
+        else
+            rango1++;    
+    }
+    return sePuede;
+}
+
+
+bool comprobarElementoTamano(size_t tamanoElemento){
+    bool existeElemento = false;
+    size_t rango1 = 0;
+    size_t rango2 = 0;
+
+    if(tamanoElemento == 0){
+        rango2 = 19;
+    }else if(tamanoElemento == 1){
+        rango1 = 20;
+        rango2 = 39;
+
+    }else if(tamanoElemento == 2){
+        rango1 = 40;
+        rango2 = 59;
+    }
+    while(rango1 <= rango2 && !sePuede){
+        if(estanterias[rango1].numActual > 0){
+            sePuede = true;
+            return sePuede;
+        }
+        else
+            rango1++;    
+    }
+    return sePuede;
+}
+
+
+void sacarElemento(size_t tamanoElemento){
+    size_t rango1 = 0;
+    size_t rango2 = 0;
+
+    if(tamanoElemento == 0){
+        rango2 = 19;
+    }else if(tamanoElemento == 1){
+        rango1 = 20;
+        rango2 = 39;
+
+    }else if(tamanoElemento == 2){
+        rango1 = 40;
+        rango2 = 59;
+    }
+    while(rango1 <= rango2 && !sePuede){
+        if(estanterias[rango1].numActual > 0){
+            estanterias[rango1].numActual--;
+        }
+        else
+            rango1++;    
+    }
+}
