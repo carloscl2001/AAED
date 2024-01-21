@@ -965,7 +965,6 @@ eliminado se prolonga hasta el siguiente.
 - Hacer una translación de una función w unidades horizontales y z unidades verticales, siendo w y z
 números reales.
 - Destruir una función */
-class 
 
 
 
