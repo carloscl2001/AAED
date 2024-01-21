@@ -608,7 +608,7 @@ Pila<tCubo> construirPila(Pila<tCubo> pila){
 // pacientes gravedad determinada
 // destruir hospital
 
-//Lista ordenada
+
 
 
 //TAD TEXTO 
@@ -1005,7 +1005,42 @@ eliminado se prolonga hasta el siguiente.
 números reales.
 - Destruir una función */
 
+struct salto{
+    double x,y;
+};
 
+class Escalonada{
+    public:
+        Escalonada(double c1, double c2);
+        void anadirSalto(double c1, double c2);
+        void eleminarSalto(double c1, double c2);
+        double valor(double c1);
+        double valorMin();
+        double valorMax();
+        void translacion(double w, double z);
+        ~Escalonada();
+
+    private:
+        Lista<salto> funcion;
+        typedef typename Lista<salto>::posicion pos;
+}
+
+Escalonada::Escalonada(double c1, double c2):funcion(Lista<salto>()){
+    salto s(c1,c2);
+    funcion.insertar(s, funcion.fin());
+}
+
+void Escalonada::anadirSalto(double c1, double c2){
+    assert()
+    salta s(c1,c2);
+    pos p = funcion.primera();
+    while(p != funcion.fin()){
+        if(s.c1 < funcion.elemento(p).x){
+            funcion.insertar(s,p);
+        }
+        p = funcion.siguiente(p);
+    }
+}
 
 
 //TAD RADIO
