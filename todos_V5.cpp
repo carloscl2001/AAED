@@ -218,10 +218,9 @@ void insertarEsIN(string pEspanol, string pIngles){
                 p_palabra = palabras.fin();
             }
             p_palabra = palabras.siguiente(p_palabra);
-        }
-            
+        }  
+        p_palabra = palabras.siguiente(p_palabra);  
     }
-    p_palabra = palabras.siguiente(p_palabra);
 }
 
 bool Diccionario::consultar(string pIngles, string pEspanol) const{
@@ -579,12 +578,6 @@ Pila<tCubo> construirPila(Pila<tCubo> pila){
 }
 
 
-
-
-
-
-
-
 //TAD HOSPITAL--------------------------------------------------------------------------------------------------------------------------------------------------------
 // especifica e implementa el TAD Hospital
 // representa los parcientes mediante codigos de pacientes ingresados en el mismo
@@ -607,6 +600,26 @@ Pila<tCubo> construirPila(Pila<tCubo> pila){
 // pacientes en planta
 // pacientes gravedad determinada
 // destruir hospital
+
+struct paciente{
+    size_t id;
+    size_t gravedad;
+};
+
+class Hospital{
+    public:
+        Hospital(size_t cap1, size_t cap2);
+    private:
+        Lista<paciente> uci;
+        Lista<paciente> planta;
+}
+
+Hospital::Hospital(size_t cap1, size_t cap2):uci(cap1), planta(cap2){}
+
+void ingreso(size_t id, size_t gravedad){
+    assert()
+}
+
 
 
 
@@ -974,16 +987,114 @@ Lista<string> Cartelera::consultarEspectaculos(string idSala) const{
 // Una empresa de muebles de cocina necesita un TAD para representar el conjunto de muebles
 //colocados en la pared de una cocina. Una cocina se crea con una longitud positiva
 // y un mueble colocado en la pared se identifica por el par formado por su posicion
-// y su anchura. La posicion es la distancia desde su lateral izquierdo al extremo derecho de la pared
+// y su anchura. La posicion es la distancia desde su lateral izquierdo al extremo derecho 
+//de la pared
 // El tad debe soportar las siguiente operaciones
 // -crear una cocina vacia con una longitud dada
 //- determinar si un mueble de una cierta anchura puede colocarse en una posicion dada
 // - añadir un mueble de una determinada longitud a una posicion dada
 // - devolver el mueble inésimo de la cocina empezando a contar por la izquierda
 // - eliminar el mueble enesimo de la cocina si existe
-// - mover el mueble inesimo de la cocina si existe hacia la izquierda hasta que se junte con el mueble i-1 esimo o el extremo izquierdo
-//de la pared
+// - mover el mueble inesimo de la cocina si existe hacia la izquierda hasta que se junte 
+//      con el mueble i-1 esimo o el extremo izquierdo de la pared
 //- destruir la cocina
+
+struct mueble{
+    double anchura;
+    double posicion;
+};
+
+class Cocina{
+    public:
+        Cocina(double l);
+        bool determinarColocacion(double anchura, double posicion);
+        void anadirMueble(double anchura, double posicion);
+        mueble muebleInesimo(size_t i);
+        void eliminarInesimo(size_t i);
+        void moverMueble(size_t i);
+        ~Cocina();
+
+    private:
+        double longitud;
+        Lista<mueble> muebles;
+        typedef typename  Lista<mueble>::posicion pos;
+};
+
+Cocina::Cocina(double l):longitud(l){}
+
+bool Cocina::determinarColocacion(double anchura, double posicion){
+    assert(posicion - anchura >= 0 && posicion <= longitud);
+    pos p = muebles.primera();
+    //antes del primer mueble
+    if(posicion-anchura>=mueble.elemento(p).posicion){
+        return true;
+    }else{
+        while(p!=mueble.fin()){
+            if(mueble.elemento(p).posicion - mueble.elemento(p).anchura >= posicion - anchura >= mueble.elemento(p.siguiente()).posicion){
+                return true;
+            }
+        }
+        if(mueble.elemento(p).posicion - mueble.elemento(p).anchura >= posicion - anchura >= 0){
+            return true;
+        }else{
+            return false;
+        }
+    }
+}
+
+void anadirMueble(double anchura, double posicion){
+    assert(determinarColocacion(anchura,posicion));
+    mueble m(anchura, posicion);
+    pos p = muebles.primera();
+    while(p!=mueble.fin()){
+        if(mueble.elemento(p).posicion < posicion){
+            muebles.insertar(m,p);
+            break;
+        }
+        p = muebles.siguiente(p);
+    }
+}
+
+mueble muebleInesimo(size_t i){
+    size_t cont = 0;
+    pos p = muebles.primera();
+    while(p!=mueble.fin()){
+        if(cont == i){
+            return muebles.elemento();
+        }
+        p = muebles.siguiente(p);
+        cont++;
+    }
+}
+
+void eliminarInesimo(size_t i){
+    size_t cont = 0;
+    pos p = muebles.primera();
+    while(p!=mueble.fin()){
+        if(cont == i){
+            muebles.eliminar(p);
+        }
+        p = muebles.siguiente(p);
+        cont++;
+    }
+}
+
+void moverMueble(size_t i){
+    size_t cont = 0;
+    pos p = muebles.primera();
+    while(p!=mueble.fin()){
+        if(cont == i){
+            break;
+        }
+        p = muebles.siguiente(p);
+        cont++;
+    }
+    if(cont == 1){
+        muebles.elemento(p).posicion = longitud;
+    }else{
+        muebles.elemento(p).posicion = muebles.elemento(muebles.anterior(p)).posicion - muebles.elemento(muebles.anterior(p)).anchura;
+    }
+}
 
 
 //TAD ESCALONADA---------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1013,7 +1124,7 @@ class Escalonada{
     public:
         Escalonada(double c1, double c2);
         void anadirSalto(double c1, double c2);
-        void eleminarSalto(double c1, double c2);
+        void eleminarSalto(double c1);
         double valor(double c1);
         double valorMin();
         double valorMax();
@@ -1025,23 +1136,88 @@ class Escalonada{
         typedef typename Lista<salto>::posicion pos;
 }
 
-Escalonada::Escalonada(double c1, double c2):funcion(Lista<salto>()){
+pos buscar(double c1){
+    pos p = funcion.primera();
+    while(p != funcion.fin()){
+        if(c1 == funcion.elemento(p).x){
+            return p;
+        }
+        p = funcion.siguiente(p);
+    }
+    return p;
+}
+
+
+Escalonada::Escalonada(double c1, double c2){
     salto s(c1,c2);
     funcion.insertar(s, funcion.fin());
 }
 
 void Escalonada::anadirSalto(double c1, double c2){
-    assert()
     salta s(c1,c2);
     pos p = funcion.primera();
     while(p != funcion.fin()){
-        if(s.c1 < funcion.elemento(p).x){
-            funcion.insertar(s,p);
+        if(c1 == funcion.elemento(p).x){
+            funcion.elemento(p).y = c2;
+        }else{
+            if(s.c1 < funcion.elemento(p).x)
+                funcion.insertar(s,p);
+                break;
+        }
+        p = funcion.siguiente(p);
+    }
+    if(p == funcion.fin()){
+        funcion.insertar(s,fin);
+    }
+}
+
+void Escalonada::eleminarSalto(double c1){
+    pos p = funcion.primera();
+    while(p != funcion.fin()){
+        if(c1 == funcion.elemento(p).x){
+            funcion.eleminar(p);
         }
         p = funcion.siguiente(p);
     }
 }
 
+double Escalonada::valor(double c1){
+    assert(buscar(c1) != funcion.fin());
+    return funcion.elemento(p);
+}
+
+double Escalonada::valorMin(){
+    pos p = funcion.primera();
+    double min = funcion.elemento(p).y;
+    while(p != funcion.fin()){
+        if(funcion.elemento(p).y < min){
+            min = funcion.elemento(p).y;
+        }
+        p = funcion.siguiente(p);
+    }
+    return min;
+}
+
+double Escalonada::valorMax(){
+    pos p = funcion.primera();
+    double max = funcion.elemento(p).y;
+    while(p != funcion.fin()){
+        if(funcion.elemento(p).y > max){
+            max = funcion.elemento(p).y;
+        }
+        p = funcion.siguiente(p);
+    }
+    return max;
+}
+
+void Escalonada::translacion(double w, double z){
+    pos p = funcion.primera();
+    while(p != funcion.fin()){
+        funcion.elemento(p).x *= w;
+        funcion.elemento(p).y *= z;
+        p = funcion.siguiente(p);
+    }
+}
 
 //TAD RADIO
 /*Una emisora de radio en línea quiere automatizar la gestión de las listas de reproducción. Por este motivo decide organizar las canciones 
@@ -1189,6 +1365,77 @@ void Radio::borrar(size_t n){
 //      •	Eliminar el trabajo a imprimir
 //      •	Cancelar todos los trabajos de un usuario
 // b)	Implementa el TAD Gestor de Impresión según la especificación del apartado anterior, justificando razonadamente la estructura de datos empleada
+using namespace std;
+
+struct usuario{
+    Cola<string> cUrgente;
+    Cola<string> cNoUrgente;
+};
+
+class Gestor{
+    public:
+        Gestor(size_t n);
+        void anadirTrabajo(size_t i, bool urgencia);
+        void imprimirTrabajo();
+        void cancelarTrabajos(size_t i);
+    private:
+        vector<usuario> vector;
+        Cola<size_t> cola;
+};
+
+GestorImpresion::GestorImpresion(size_t n):vector(n), cola(n) { }
+
+//Usamos el TAD Cola con implementacion pseudoestatica en la principal, dinamica para las de trbajo y un vector de la stl al tener que saber el tam en tipo de ejecucion
+
+void anadirTrabajo(size_t i, bool urgencia, string trabajo){
+    assert(i >= 0 && i < vector.size());
+    //tenia trabajo antes -> no se mete a cola prinicipal
+    if(vector[i].cUrgente.tama() > 0 || vector[i].cNoUrgente.tam() > 0){
+        if(urgencia)
+            vector[i].cUrgente.push(trabajo);
+        else
+            vector[i].cNoUrgente.push(trabajo);
+    }
+    //no tenia ningun trbajo-> se mete a cola principal
+    else{
+        if(urgencia)
+            vector[i].cUrgente.push(trabajo);
+        else
+            vector[i].cnoUrgente.push(trabajo);
+        cola.push(i);
+    }
+}
+
+void Gestor::imprimirTrabajo(){
+    if(cola.frente().cUrgente.tama() > 0)
+        cola.frente().cUrgente.pop();
+    else
+        cola.frente().cNoUrgente.pop();
+        
+    if(cola.frente().cUrgente.tama() == 0 && cola.frente().cNoUrgente.tama() == 0)
+        cola.pop();
+    else
+        cola.push(cola.frente());
+        cola.pop();
+}
+
+void cancelarTrabajos(size_t i){
+    assert(i >= 0 && i < vector.size());
+    //en caso de que tuviese algun trabajo, es decir, estas en la cola princiapal
+    if(cola.frente().cUrgente.tama() > 0 && cola.frente().cNoUrgente.tama() > 0){
+        vector[i].cUrgente = cola<string> cUrgente();
+        vector[i].cNoUrgente = cola<string> cNoUrgente();
+        
+        Cola<size_t> cAux;
+        while(!cola.vacia()){
+            if(cola.frente() == i){
+                cola.pop();
+            }
+            cAux.push(cola.frente());
+        }
+        cola = cAux;
+    }
+}
 
 
 //TAD AVERIA--------------------------------------------------------------------------------------------------------------------------------------------------------
