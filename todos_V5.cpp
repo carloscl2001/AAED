@@ -543,6 +543,45 @@ de abajo hacia arriba).
     b) Implemente una función que dada una pila cualquiera de cubiletes simule el juego y 
     devuelva la nueva pila construida. La solución se basará exclusivamente en el TAD Pila. */
 
+struct tCubo{
+    size_t tamano;
+    bool bocaBajo;
+};
+
+Pila<tCubo> construirPila(Pila<tCubo> pila){
+    size_t tam = pila.tama();
+    Pila<tCubo> pAux;
+    Pila<tCubo> pFinal;
+    while(pFinal.tam() != tam){
+        tCubo cuboMax = pila.tope();
+        // de pila a pila aux
+        while(!pila.vacia()){
+            pila.tope(); = true;
+            pila.pop();
+            if(pila.tope().tamano > cuboMax.tamano){
+                cuboMax = pila.tope();
+            }
+            pAux.push(aux);
+        }
+        //de pila aux a y pila o si es el mayor a pila Final
+        while(!pAux.vacia()){
+            if(pAux.tope().tamano == cuboMax.tamano){
+                pFinal.push(pAux.tope());
+                pAux.pop();
+            }else{
+                pila.push(pAux.tope());
+                pAux.pop();
+            }
+        }
+
+    }
+    
+}
+
+
+
+
+
 
 
 
