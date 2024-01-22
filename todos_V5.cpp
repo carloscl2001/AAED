@@ -636,7 +636,7 @@ Escribe una función MostrarTexto().
 Al realizar este volcado de pantalla no te preocupes por el número de caracteres ni de líneas.*/
 struct linea{
     Lista<char> caracteres;
-    Lista<char> pos2;
+    Lista<char>::posicion pos2;
 };
 
 class Texto{
