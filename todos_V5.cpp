@@ -122,7 +122,7 @@ void Tren::desplazarIzqda(){
     if(!pD.vacia()){
         pI.push(aux);
     }else{
-        push(aux);
+        pD.push(aux);
     }
 }
 
