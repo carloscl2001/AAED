@@ -604,23 +604,313 @@ Pila<tCubo> construirPila(Pila<tCubo> pila){
 struct paciente{
     size_t id;
     size_t gravedad;
+    paciente(size_t _id, size_t _gravedad):id(_id), gravedad(_gravedad){}
 };
 
 class Hospital{
     public:
-        Hospital(size_t cap1, size_t cap2);
+        Hospital(size_t n_uci, size_t n_planta);
+        void ingreso(size_t id, size_t gravedad);
+        void alta(size_t id);
+        void muerte();
+        size_t pacientes_uci() const;
+        size_t pacientes_planta() const;
+        size_t gravedad_determinada(size_t gravedad) const;
+        ~Hospital();
     private:
+        size_t capacidad_uci;
+        size_t capacidad_planta;
         Lista<paciente> uci;
         Lista<paciente> planta;
+        typedef typename Lista<paciente>::posicion pos;
+        bool existe_paciente(size_t id);
+};
+
+bool Hospital::existe_paciente(size_t id){
+    pos pu = uci.primera();
+    pos pp = planta.primera();
+
+    while(pu != uci.fin()){
+        if(uci.elemento(pu).id == id){
+            return true;
+        }
+        pu = uci.siguiente(pu);
+    }
+
+    while(pp != planta.fin()){
+        if(planta.elemento(pp).id == id){
+            return true;
+        }
+        pp = planta.siguiente(pp);
+    }
+
+    return false;
 }
 
-Hospital::Hospital(size_t cap1, size_t cap2):uci(cap1), planta(cap2){}
+Hospital::Hospital(size_t n_uci, size_t n_planta):capacidad_uci(n_uci), capacidad_planta(n_planta){}
 
-void ingreso(size_t id, size_t gravedad){
-    assert()
+void Hospital::ingreso(size_t id, size_t gravedad){
+    //Comprobamos que el paciente no estuviese ya en el hospital
+    assert(!existe_paciente(id));
+
+    //Si el paciente tiene gravedad de planta
+    if(gravedad >= 6 && gravedad <= 9){
+        //Si la planta no está llena
+        if(planta.tama() < capacidad_planta){
+            //Insertamos al paciente por orden de gravedad (9, 8, 7, 7, 6 ...)
+            pos p = planta.primera();
+            while(p != planta.fin()){
+                if(gravedad >= planta.elemento(p).gravedad){
+                    paciente pa(id, gravedad);
+                    planta.insertar(pa, p);
+                    break;
+                }
+                p = planta.siguiente(p);
+            }
+            if(p == planta.fin()){
+                paciente pa(id, gravedad);
+                planta.insertar(pa, p);
+            }
+        }
+        //Si la planta está llena (Si tu gravedad es peor que el más sano de la planta, este se va)
+        else{
+            if(gravedad < planta.elemento(planta.primera()).gravedad){ 
+                //Damos de alta al paciente mas sano
+                alta(planta.elemento(planta.primera()).id);
+                //Insertamos al paciente por orden de gravedad (9, 8, 7, 7, 6 ...)
+                pos p = planta.primera();
+                while(p != planta.fin()){
+                    if(gravedad >= planta.elemento(p).gravedad){
+                        paciente pa(id, gravedad);
+                        planta.insertar(pa, p);
+                        break;
+                    }
+                    p = planta.siguiente(p);
+                }
+                if(p == planta.fin()){
+                    paciente pa(id, gravedad);
+                    planta.insertar(pa, p);
+                }
+            }
+        }
+    }
+    else{
+        //Si el paciente tiene gravedad de uci
+        if(gravedad >= 1 && gravedad <= 5){
+            //Si la uci no está llena
+            if(uci.tama() < capacidad_uci){
+                //Insertamos al paciente por orden de gravedad (5, 5, 4, 3, 1 ...)
+                pos p = uci.primera();
+                while(p != uci.fin()){
+                    if(gravedad >= uci.elemento(p).gravedad){
+                        paciente pa(id, gravedad);
+                        uci.insertar(pa, p);
+                        break;
+                    }
+                    p = uci.siguiente(p);
+                }
+                if(p == uci.fin()){
+                    paciente pa(id, gravedad);
+                    uci.insertar(pa, p);
+                }
+            }
+            //Si la uci se encuentra llena(Paciente más sano de UCI pasa a planta si se puede)
+            else{
+                if(gravedad < uci.elemento(uci.primera()).gravedad){
+                    //Guardamos la struct del paciente antes de eliminarlo
+                    paciente paciente = uci.elemento(uci.primera());
+                    //Sacamos de la uci al paciente más sano
+                    uci.eliminar(uci.primera());
+                    //Metemos al nuevo paciente en la uci
+                    pos p = uci.primera();
+                    while(p != uci.fin()){
+                        if(gravedad >= uci.elemento(p).gravedad){
+                            paciente pa(id, gravedad);
+                            uci.insertar(pa, p);
+                            break;
+                        }
+                        p = uci.siguiente(p);
+                    }
+                    if(p == uci.fin()){
+                        paciente pa(id, gravedad);
+                        uci.insertar(pa, p);
+                    }
+
+                    //Una vez metido al nuevo paciente, tenemos que mirar si el paciente más sano que eliminamos anteriormente cabe en planta
+                    //Si cabe en la planta
+                    if(planta.tama() < capacidad_planta){
+                        pos p = planta.primera();
+                        while(p != planta.fin()){
+                            if(paciente.gravedad >= planta.elemento(p).gravedad){
+                                planta.insertar(paciente, p);
+                                break;
+                            }
+                            p = planta.siguiente(p);
+                        }
+                        if(p == planta.fin()){
+                            planta.insertar(paciente, p);
+                        }
+                    }
+                    //Si no cabe, se repite el proceso anterior de dar de alta al más sano de la planta para que quepa este
+                    else{
+                        if(gravedad < planta.elemento(planta.primera()).gravedad){
+                            //Damos de alta al paciente mas sano
+                            alta(planta.elemento(planta.primera()).id);
+                            //Insertamos al paciente por orden de gravedad (9, 8, 7, 7, 6 ...)
+                            pos p = planta.primera();
+                            while(p != planta.fin()){
+                                if(paciente.gravedad >= planta.elemento(p).gravedad){
+                                    planta.insertar(paciente, p);
+                                    break;
+                                }
+                                p = planta.siguiente(p);
+                            }
+                            if(p == planta.fin()){
+                                planta.insertar(paciente, p);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
+void Hospital::alta(size_t id){
+    //Primero nos aseguramos que el paciente se encuentre en el hospital
+    assert(existe_paciente(id_paciente));
 
+    //Buscamos la posición del paciente
+    //Primero en la planta
+    pos pp = planta.primera();
+    while(pp != planta.fin()){
+        if(id == planta.elemento(pp).id){
+            planta.eliminar(pp);
+            break;
+        }
+        pp = planta.siguiente(pp);
+    }
+    if(pp == planta.fin()){ //Si planta es igual a fin quiere decir que no estaba en planta, buscamos en uci
+       pos pu = uci.primera();
+        while(pu != uci.fin()){
+            if(id == uci.elemento(pu).id){
+                uci.eliminar(pp);
+                break;
+            }
+            pu = uci.siguiente(pu);
+        }
+
+        //Si se ha ido alguien de UCI, quiere decir que hay un hueco, por lo cual miramos si hay alguien de planta con gravedad uci para subirlo
+        //Si evidentemento lo hay, lo metemos en la uci de nuevo
+        if(planta.elemento(planta.anterior(planta.fin())).gravedad >= 5 && planta.elemento(planta.anterior(planta.fin())).gravedad <= 1){
+            paciente paciente = planta.elemento(planta.anterior(planta.fin()));
+            planta.eliminar(planta.anterior(planta.fin()));
+            //Insertamos al paciente por orden de gravedad (5, 5, 4, 3, 1 ...)
+            pos p = uci.primera();
+            while(p != uci.fin()){
+                if(gravedad >= uci.elemento(p).gravedad){
+                    uci.insertar(paciente, p);
+                    break;
+                }
+                p = uci.siguiente(p);
+            }
+            if(p == uci.fin()){
+                uci.insertar(paciente, p);
+            }
+        }
+    }
+
+
+}
+
+//Para mi, muerte consiste en buscar aquellos pacientes que hayan muerto, es decir, tengan gravedad 0 y eliminarlos del hospital
+void Hospital::muerte(){
+    pos pp = planta.primera();
+    while(pp != planta.fin()){
+        if(planta.elemento(pp).gravedad == 0){
+            planta.eliminar(pp);
+        }
+        pp = planta.siguiente(pp);
+    }
+
+    pos pu = uci.primera();
+    while(pu != uci.fin()){
+        if(uci.elemento(pu).gravedad == 0){
+            uci.eliminar(pp);
+        }
+        pu = uci.siguiente(pu);
+    }
+
+    //Si al terminar de eliminar a los muertos, quedan huecos en uci, comprobamos si hay pacientes de uci en planta
+    if(uci.tama() < capacidad_uci){
+        pacientes_pueden_subir = capacidad_uci - uci.tama(); // Si la uci tiene 3 y al cap_maxima es 5, podrian subir 2 en caso de que los hubiera
+        while(pacientes_pueden_subir != 0){
+            if(planta.elemento(planta.anterior(planta.fin())).gravedad >= 5 && planta.elemento(planta.anterior(planta.fin())).gravedad <= 1){
+                paciente paciente = planta.elemento(planta.anterior(planta.fin()));
+                planta.eliminar(planta.anterior(planta.fin()));
+                //Insertamos al paciente por orden de gravedad (5, 5, 4, 3, 1 ...)
+                pos p = uci.primera();
+                while(p != uci.fin()){
+                    if(gravedad >= uci.elemento(p).gravedad){
+                        uci.insertar(paciente, p);
+                        break;
+                    }
+                    p = uci.siguiente(p);
+                }
+                if(p == uci.fin()){
+                    uci.insertar(paciente, p);
+                }
+                pacientes_pueden_subir--;
+            }
+            else{
+                break;
+            }
+        }
+    }
+}
+
+size_t Hospital::pacientes_uci() const{
+    return uci.tama();
+}
+
+size_t Hospital::pacientes_planta() const{
+    return planta.tama();
+}
+
+size_t Hospital::gravedad_determinada(size_t gravedad) const{
+    size_t contador=0;
+
+    //Si la gravedad que nos dan es gravedad planta, solo buscamos ahí pq no pueden estar en uci
+    if(gravedad >= 6 && gravedad <= 9){
+        pos pp = planta.primera();
+        while(pp != planta.fin()){
+            if(gravedad == planta.elemento(pp).gravedad){
+                contador++;
+            }
+            pp = planta.siguiente(pp);
+        }
+    }
+    //Si la gravedad es de UCI, miramos en ambas plantas, ya que se puede dar el caso de que estén en ambas plantas
+    else if(gravedad >= 1 && gravedad <= 5){
+        pos pp = planta.primera();
+        while(pp != planta.fin()){
+            if(gravedad == planta.elemento(pp).gravedad){
+                contador++;
+            }
+            pp = planta.siguiente(pp);
+        }
+
+        pos pu = uci.primera();
+        while(pu != uci.fin()){
+            if(gravedad == uci.elemento(pu).gravedad){
+                contador++;
+            }
+            pu = uci.siguiente(pu);
+        }
+    }
+
+    return contador;
+}
 
 
 
